@@ -1,0 +1,193 @@
+import type { Database } from './database';
+
+/**
+ * 内容设置相关的类型定义
+ * 提供虚拟表名到实际数据库表名的映射和统一的数据操作接口
+ */
+
+// 虚拟表名枚举 - 保持向后兼容性
+export enum ContentTableType {
+  SITE_CONTENT = 'site_content',
+  NAVIGATION_ITEMS = 'navigation_items', 
+  UI_TEXT_ELEMENTS = 'ui_text_elements',
+  PAGE_SECTIONS = 'page_sections',
+  SEO_METADATA = 'seo_metadata'
+}
+
+// 虚拟表名到实际数据库表名的映射
+export const TABLE_MAPPING: Record<ContentTableType, keyof Database['public']['Tables']> = {
+  [ContentTableType.SITE_CONTENT]: 'site_content',
+  [ContentTableType.NAVIGATION_ITEMS]: 'page_configs',
+  [ContentTableType.UI_TEXT_ELEMENTS]: 'ui_configs',
+  [ContentTableType.PAGE_SECTIONS]: 'component_instances',
+  [ContentTableType.SEO_METADATA]: 'theme_configs'
+};
+
+// 实际数据库表类型映射
+export type TableData = {
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Row'];
+  [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Row'];
+  [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Row'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Row'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Row'];
+};
+
+// 插入数据类型映射
+export type TableInsertData = {
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Insert'];
+  [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Insert'];
+  [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Insert'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Insert'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Insert'];
+};
+
+// 更新数据类型映射
+export type TableUpdateData = {
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Update'];
+  [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Update'];
+  [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Update'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Update'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Update'];
+};
+
+// 分页参数接口
+export interface PaginationParams {
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// 查询过滤器接口
+export interface QueryFilters {
+  search?: string;
+  isActive?: boolean;
+  [key: string]: any;
+}
+
+// API响应接口
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+// 分页响应接口
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+// 表操作结果接口
+export interface TableOperationResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: any;
+}
+
+// 预览数据接口
+export interface PreviewData {
+  id: string;
+  title: string;
+  content?: string;
+  metadata?: Record<string, any>;
+  updatedAt?: string;
+}
+
+// 表单数据接口
+export interface FormData {
+  [key: string]: any;
+}
+
+// 验证规则接口
+export interface ValidationRule {
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+  custom?: (value: any) => boolean | string;
+}
+
+// 字段配置接口
+export interface FieldConfig {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'date' | 'json';
+  required?: boolean;
+  validation?: ValidationRule;
+  options?: Array<{ label: string; value: any }>;
+  placeholder?: string;
+  defaultValue?: any;
+}
+
+// 表配置接口
+export interface TableConfig {
+  tableName: ContentTableType;
+  displayName: string;
+  fields: FieldConfig[];
+  primaryKey: string;
+  searchableFields: string[];
+  sortableFields: string[];
+}
+
+// 导出所有表类型的联合类型
+export type AllTableTypes = ContentTableType;
+export type AllTableData = TableData[ContentTableType];
+export type AllTableInsertData = TableInsertData[ContentTableType];
+export type AllTableUpdateData = TableUpdateData[ContentTableType];
+
+// 表格列配置接口
+export interface TableColumn {
+  key: string;
+  title: string;
+  type: 'text' | 'number' | 'boolean' | 'datetime' | 'json';
+  sortable?: boolean;
+  width?: string;
+  render?: (value: any, record?: any) => React.ReactNode;
+}
+
+// 标签页统计接口
+export interface TabStats {
+  total: number;
+  active?: number;
+  inactive?: number;
+}
+
+// 内容数据接口（通用数据类型）
+export type ContentData = AllTableData & {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
+  is_active?: boolean;
+  [key: string]: any;
+};
+
+// 排序配置接口
+export interface SortConfig {
+  key: string;
+  direction: 'asc' | 'desc';
+}
+
+// 筛选配置接口
+export interface FilterConfig {
+  search?: string;
+  isActive?: boolean;
+  [key: string]: any;
+}
+
+// 工具函数类型
+export type TableType = ContentTableType;
+export type GetTableData<T extends ContentTableType> = TableData[T];
+export type GetTableInsertData<T extends ContentTableType> = TableInsertData[T];
+export type GetTableUpdateData<T extends ContentTableType> = TableUpdateData[T];
+
+// 默认导出
+export default {
+  ContentTableType,
+  TABLE_MAPPING
+};

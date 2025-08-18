@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "./styles/components.css";
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    background-color: #f9fafb;
+    color: #111827;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+  
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* 拖拽编辑器样式 */
+  .drag-drop-editor {
+    @apply w-full h-full bg-gray-50;
+  }
+  
+  .drag-drop-editor.edit-mode {
+    @apply flex flex-col h-full;
+  }
+  
+  .editor-header {
+    @apply flex items-center justify-between p-4 bg-white border-b border-gray-200 shadow-sm;
+  }
+  
+  .editor-header h3 {
+    @apply m-0 text-gray-700 text-lg font-semibold;
+  }
+  
+  .editor-info {
+    @apply flex items-center gap-4 text-sm text-gray-500;
+  }
+  
+  .selected-info {
+    @apply text-blue-600 font-medium;
+  }
+  
+  .layout {
+    @apply flex-1 bg-gray-100;
+  }
+  
+  .drag-item {
+    @apply bg-white rounded-lg shadow-md relative overflow-hidden transition-all duration-200 cursor-pointer;
+  }
+  
+  .drag-item:hover {
+    @apply shadow-lg transform -translate-y-0.5;
+  }
+  
+  .drag-item.selected {
+    @apply border-2 border-blue-500 shadow-blue-100;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .drag-item.dragging {
+    @apply opacity-80 z-50;
+    transform: rotate(2deg);
+  }
+  
+  .item-content {
+    @apply h-full p-4 overflow-hidden;
+  }
+  
+  .item-controls {
+    @apply absolute top-0 left-0 right-0 text-white p-2 flex items-center justify-between opacity-0 transition-opacity duration-200;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  }
+  
+  .drag-item:hover .item-controls,
+  .drag-item.selected .item-controls {
+    @apply opacity-100;
+  }
+  
+  .item-info {
+    @apply flex items-center gap-2 text-xs;
+  }
+  
+  .item-type {
+    @apply px-2 py-1 rounded-full font-medium;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .item-key {
+    @apply opacity-80;
+  }
+  
+  .item-actions {
+    @apply flex items-center gap-1;
+  }
+  
+  .action-btn {
+    @apply border-0 text-white w-6 h-6 rounded cursor-pointer flex items-center justify-center text-xs transition-colors duration-200;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .delete-btn:hover {
+    @apply bg-red-500;
+  }
+  
+  .drag-handle {
+    @apply absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-500 p-1 rounded text-xs leading-none opacity-0 transition-opacity duration-200;
+    background: rgba(0, 0, 0, 0.1);
+    cursor: grab;
+  }
+  
+  .drag-item:hover .drag-handle {
+    @apply opacity-100;
+  }
+  
+  .drag-handle:active {
+    cursor: grabbing;
+  }
+  
+  .selection-info {
+    @apply bg-blue-600 text-white p-3 text-sm;
+  }
+  
+  .selection-info p {
+    @apply m-0;
+  }
+  
+  .selection-info .tip {
+    @apply mt-1 opacity-90 text-xs;
+  }
+}

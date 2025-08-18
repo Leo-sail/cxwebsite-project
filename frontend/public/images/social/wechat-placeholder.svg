@@ -1,0 +1,15 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="80" rx="12" fill="#07C160"/>
+  <g transform="translate(16, 16)">
+    <!-- 微信图标简化版本 -->
+    <circle cx="18" cy="20" r="12" fill="white" opacity="0.9"/>
+    <circle cx="30" cy="28" r="10" fill="white" opacity="0.8"/>
+    <!-- 简单的对话气泡效果 -->
+    <circle cx="15" cy="18" r="2" fill="#07C160"/>
+    <circle cx="21" cy="18" r="2" fill="#07C160"/>
+    <circle cx="27" cy="26" r="1.5" fill="#07C160"/>
+    <circle cx="33" cy="26" r="1.5" fill="#07C160"/>
+  </g>
+  <!-- 微信文字 -->
+  <text x="40" y="70" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">微信</text>
+</svg>

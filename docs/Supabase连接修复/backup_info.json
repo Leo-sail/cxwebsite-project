@@ -1,0 +1,15 @@
+{
+  "backup_time": "2025-01-17T17:51:00+08:00",
+  "original_file": "/Users/changhao/Desktop/网站测试/frontend/src/types/contentSettings.ts",
+  "backup_file": "/Users/changhao/Desktop/网站测试/frontend/src/types/contentSettings.ts.backup",
+  "file_size": "5518 bytes",
+  "backup_reason": "Supabase连接修复 - TABLE_MAPPING配置修正前的安全备份",
+  "task_id": "T1",
+  "project": "Supabase连接修复",
+  "backup_status": "completed",
+  "verification": {
+    "backup_exists": true,
+    "size_match": true,
+    "integrity_check": "passed"
+  }
+}

@@ -1,0 +1,38 @@
+<svg width="1471" height="384" viewBox="0 0 1471 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1471" height="384" fill="#F8FAFC"/>
+  
+  <!-- 教室背景 -->
+  <rect x="0" y="200" width="1471" height="184" fill="#E2E8F0"/>
+  
+  <!-- 黑板 -->
+  <rect x="100" y="50" width="400" height="200" fill="#1E293B" stroke="#64748B" stroke-width="4"/>
+  <text x="300" y="120" text-anchor="middle" fill="#F1F5F9" font-family="Arial, sans-serif" font-size="24">考研数学</text>
+  <text x="300" y="150" text-anchor="middle" fill="#F1F5F9" font-family="Arial, sans-serif" font-size="18">y = ax² + bx + c</text>
+  
+  <!-- 讲台 -->
+  <rect x="200" y="250" width="200" height="50" fill="#94A3B8"/>
+  
+  <!-- 桌椅 -->
+  <g>
+    <!-- 第一排 -->
+    <rect x="600" y="280" width="80" height="40" fill="#CBD5E1"/>
+    <rect x="700" y="280" width="80" height="40" fill="#CBD5E1"/>
+    <rect x="800" y="280" width="80" height="40" fill="#CBD5E1"/>
+    
+    <!-- 第二排 -->
+    <rect x="600" y="340" width="80" height="40" fill="#CBD5E1"/>
+    <rect x="700" y="340" width="80" height="40" fill="#CBD5E1"/>
+    <rect x="800" y="340" width="80" height="40" fill="#CBD5E1"/>
+  </g>
+  
+  <!-- 窗户 -->
+  <rect x="1200" y="80" width="150" height="120" fill="#DBEAFE" stroke="#3B82F6" stroke-width="3"/>
+  <line x1="1275" y1="80" x2="1275" y2="200" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="1200" y1="140" x2="1350" y2="140" stroke="#3B82F6" stroke-width="2"/>
+  
+  <!-- 装饰元素 -->
+  <circle cx="1000" cy="100" r="30" fill="#FEF3C7"/>
+  <text x="1000" y="105" text-anchor="middle" fill="#D97706" font-family="Arial, sans-serif" font-size="12">优质教学</text>
+  
+  <text x="735" y="30" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-size="20" font-weight="bold">专业教学环境</text>
+</svg>
