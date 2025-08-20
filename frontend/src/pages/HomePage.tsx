@@ -24,10 +24,10 @@ import {
   useResponsiveSpacing 
 } from '../hooks/useResponsive';
 import { TouchableButton, TouchableCard } from '../components/mobile';
-// import { hapticFeedback } from '../utils/touchGestures';
 import { cn } from '../utils';
 import { TeacherAvatar } from '../components/ui/TeacherAvatar';
-// import { useState } from 'react'; // 暂时注释，如需要可取消注释
+import DynamicComponentArea from '../components/DynamicComponentArea';
+import { useText } from '../hooks/useText';
 
 /**
  * 首页组件 - 响应式优化版本
@@ -35,6 +35,49 @@ import { TeacherAvatar } from '../components/ui/TeacherAvatar';
 const HomePage = () => {
   // 响应式Hook
   const responsive = useResponsive({ enableDebug: false, cacheKey: 'homepage' });
+  
+  // 文字内容Hook（使用数据库格式）
+  const heroTitle = useText('home_hero_title', 'home');
+  const heroSubtitle = useText('home_hero_subtitle', 'home');
+  const heroCtaCourses = useText('home_hero_cta_primary', 'home');
+  const heroCtaConsult = useText('home_hero_cta_secondary', 'home');
+  
+  // 特色功能区域文字
+  const featuresTitle = useText('home_features_title', 'home');
+  
+  // 统计数据区域文字
+  const statsTitle = useText('home_stats_title', 'home');
+  
+  // 课程区域文字（使用硬编码文本，因为数据库中没有对应的key）
+  const coursesTitle = '热门课程';
+  const coursesSubtitle = '精选优质课程，助您成功上岸';
+  const coursesViewAll = '查看全部课程';
+  
+  // 师资区域文字（使用硬编码文本，因为数据库中没有对应的key）
+  const teachersTitle = '优秀师资';
+  const teachersSubtitle = '经验丰富的专业导师团队';
+  const teachersViewAll = '查看全部师资';
+  
+  // 案例区域文字（使用硬编码文本，因为数据库中没有对应的key）
+  const casesTitle = '学员案例';
+  const casesSubtitle = '真实案例见证成功之路';
+  const casesViewAll = '查看更多案例';
+  
+  // 文章区域文字（使用硬编码文本，因为数据库中没有对应的key）
+  const articlesTitle = '最新文章';
+  const articlesSubtitle = '获取最新考研资讯和学习技巧';
+  const articlesLatest = '最新';
+  const articlesReadMore = '阅读更多';
+  const articlesViewAll = '查看全部文章';
+  
+  // 案例区域额外文字
+  const casesSuccessLabel = useText('home_cases_success_label', 'home');
+  
+  // CTA区域文字
+  const ctaTitle = useText('home_cta_title', 'home');
+  const ctaSubtitle = useText('home_cta_subtitle', 'home');
+  const ctaConsult = useText('home_cta_consult', 'home');
+  const ctaCourses = useText('home_cta_courses', 'home');
   
   // 响应式值配置
   const heroTitleSize = useResponsiveFontSize({
@@ -107,6 +150,15 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
+      {/* 实时诊断面板 - 诊断完成后暂时隐藏 */}
+      
+      
+      {/* 动态组件区域 - 页面顶部 */}
+      <DynamicComponentArea 
+        area="header" 
+        containerClassName="bg-white"
+      />
+      
       {/* Hero Section - 响应式优化 */}
       <section 
         className="relative bg-gradient-to-r from-blue-600 to-blue-800 overflow-hidden"
@@ -123,18 +175,24 @@ const HomePage = () => {
             trigger="immediate"
           >
             <div className="text-center">
+              {/* 动态组件区域 - Hero内容 */}
+              <DynamicComponentArea 
+                area="hero" 
+                containerClassName="text-white"
+              />
+              
+              {/* 默认内容作为后备 */}
               <h1 
                 className="font-bold text-white mb-6"
                 style={{ fontSize: heroTitleSize }}
               >
-                实现你的
-                <span className="text-blue-200 ml-2">名校梦想</span>
+                {heroTitle}
               </h1>
               <p 
                 className="text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed"
                 style={{ fontSize: heroSubtitleSize }}
               >
-                专业的考研培训机构，提供全方位的考研辅导服务，助你一次上岸
+                {heroSubtitle}
               </p>
               <div className={cn(
                 "flex gap-4 justify-center",
@@ -149,7 +207,7 @@ const HomePage = () => {
                   }}
                   className="bg-white text-blue-600 hover:bg-blue-50 inline-flex items-center justify-center"
                 >
-                  查看课程
+                  {heroCtaCourses}
                 </TouchableButton>
                 <TouchableButton
                   variant="secondary"
@@ -160,13 +218,16 @@ const HomePage = () => {
                   }}
                   className="border-2 border-white text-white hover:bg-white hover:text-blue-600 inline-flex items-center"
                 >
-                  免费咨询
+                  {heroCtaConsult}
                 </TouchableButton>
+
               </div>
             </div>
           </AnimatedContainer>
         </div>
       </section>
+
+
 
       {/* 热门课程 - 响应式优化 */}
       <section 
@@ -190,12 +251,12 @@ const HomePage = () => {
                 <h2 className={cn(
                   "font-bold text-gray-900",
                   responsive.isMobile ? "text-2xl" : "text-3xl"
-                )}>热门课程</h2>
+                )}>{coursesTitle}</h2>
               </div>
               <p className={cn(
                 "text-gray-600",
                 responsive.isMobile ? "text-base" : "text-lg"
-              )}>精心设计的课程体系，助你高效备考</p>
+              )}>{coursesSubtitle}</p>
             </div>
           </AnimatedContainer>
           <div className={cn(
@@ -283,13 +344,15 @@ const HomePage = () => {
                 responsive.isMobile ? "px-6 py-3 text-base" : "px-8 py-3 text-lg"
               )}
             >
-              查看全部课程
+              {coursesViewAll}
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
             </AnimatedContainer>
           </div>
         </div>
       </section>
+
+
 
       {/* 优秀师资 - 响应式优化 */}
       <section 
@@ -313,12 +376,12 @@ const HomePage = () => {
                 <h2 className={cn(
                   "font-bold text-gray-900",
                   responsive.isMobile ? "text-2xl" : "text-3xl"
-                )}>优秀师资</h2>
+                )}>{teachersTitle}</h2>
               </div>
               <p className={cn(
                 "text-gray-600",
                 responsive.isMobile ? "text-base" : "text-lg"
-              )}>经验丰富的名师团队，为你保驾护航</p>
+              )}>{teachersSubtitle}</p>
             </div>
           </AnimatedContainer>
           <div className={cn(
@@ -377,7 +440,7 @@ const HomePage = () => {
                   responsive.isMobile ? "px-6 py-3 text-base" : "px-8 py-3 text-lg"
                 )}
               >
-                查看全部师资
+                {teachersViewAll}
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
             </AnimatedContainer>
@@ -407,12 +470,12 @@ const HomePage = () => {
                 <h2 className={cn(
                   "font-bold text-gray-900",
                   responsive.isMobile ? "text-2xl" : "text-3xl"
-                )}>学员案例</h2>
+                )}>{casesTitle}</h2>
               </div>
               <p className={cn(
                 "text-gray-600",
                 responsive.isMobile ? "text-base" : "text-lg"
-              )}>真实的成功案例，见证我们的实力</p>
+              )}>{casesSubtitle}</p>
             </div>
           </AnimatedContainer>
           {/* 学员案例网格布局 */}
@@ -440,7 +503,7 @@ const HomePage = () => {
                           loading="lazy"
                         />
                         <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          成功上岸
+                          {casesSuccessLabel}
                         </div>
                       </div>
                     )}
@@ -486,13 +549,15 @@ const HomePage = () => {
                   responsive.isMobile ? "px-6 py-3 text-base" : "px-8 py-3 text-lg"
                 )}
               >
-                查看更多案例
+                {casesViewAll}
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
             </AnimatedContainer>
           </div>
         </div>
       </section>
+
+
 
       {/* 最新文章 - 响应式优化 */}
       <section 
@@ -516,12 +581,12 @@ const HomePage = () => {
                 <h2 className={cn(
                   "font-bold text-gray-900",
                   responsive.isMobile ? "text-2xl" : "text-3xl"
-                )}>最新文章</h2>
+                )}>{articlesTitle}</h2>
               </div>
               <p className={cn(
                 "text-gray-600",
                 responsive.isMobile ? "text-base" : "text-lg"
-              )}>考研资讯和备考指导</p>
+              )}>{articlesSubtitle}</p>
             </div>
           </AnimatedContainer>
           <div className="mb-8">
@@ -548,7 +613,7 @@ const HomePage = () => {
                           loading="lazy"
                         />
                         <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          最新
+                          {articlesLatest}
                         </div>
                       </div>
                     )}
@@ -570,7 +635,7 @@ const HomePage = () => {
                         to={`/articles/${article.id}`}
                         className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
                       >
-                        阅读全文
+                        {articlesReadMore}
                         <ArrowRightIcon className="ml-1 h-4 w-4" />
                       </Link>
                     </div>
@@ -595,13 +660,15 @@ const HomePage = () => {
                   responsive.isMobile ? "px-6 py-3 text-base" : "px-8 py-3 text-lg"
                 )}
               >
-                查看全部文章
+                {articlesViewAll}
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
             </AnimatedContainer>
           </div>
         </div>
       </section>
+
+
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700 relative overflow-hidden">
@@ -621,10 +688,10 @@ const HomePage = () => {
           >
             <div className="flex items-center justify-center mb-6">
               <TrophyIcon className="h-12 w-12 text-white mr-4" />
-              <h2 className="text-4xl font-bold text-white">开始你的考研之路</h2>
+              <h2 className="text-4xl font-bold text-white">{ctaTitle}</h2>
             </div>
             <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-              专业的指导，科学的方法，让你的考研之路更加顺畅
+              {ctaSubtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
@@ -632,7 +699,7 @@ const HomePage = () => {
                 className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 <AcademicCapIcon className="h-5 w-5 mr-2" />
-                立即咨询
+                {ctaConsult}
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
               <Link
@@ -640,12 +707,13 @@ const HomePage = () => {
                 className="inline-flex items-center border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300"
               >
                 <UserGroupIcon className="h-5 w-5 mr-2" />
-                查看课程
+                {ctaCourses}
               </Link>
             </div>
           </AnimatedContainer>
         </div>
       </section>
+      
     </div>
   );
 };

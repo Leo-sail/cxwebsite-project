@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { SEO, AnimatedContainer, GradientBackground } from '../components';
 import { useFormValidation } from '../hooks/useValidation';
-
+import { useText } from '../hooks/useText';
 import { ContactService } from '../services/ContactService';
 import { cn } from '../utils';
 
@@ -44,6 +44,70 @@ const ContactPage: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // SEO文本
+  const seoTitle = useText('contact_seo_title', 'contact');
+  const seoDescription = useText('contact_seo_description', 'contact');
+  const seoKeywords = useText('contact_seo_keywords', 'contact');
+
+  // 页面标题和描述
+  const pageTitle = useText('contact_page_title', 'contact');
+  const pageSubtitle = useText('contact_page_subtitle', 'contact');
+  const pageDescription = useText('contact_page_description', 'contact');
+
+  // 联系信息
+  const consultationTitle = useText('consultation_title', 'contact');
+  const consultationPhone = useText('consultation_phone', 'contact');
+  const consultationDesc = useText('consultation_desc', 'contact');
+
+  const addressTitle = useText('address_title', 'contact');
+  const addressText = useText('address_text', 'contact');
+  const addressDesc = useText('address_desc', 'contact');
+
+  const wechatTitle = useText('wechat_title', 'contact');
+  const wechatId = useText('wechat_id', 'contact');
+  const wechatDesc = useText('wechat_desc', 'contact');
+
+  const workTimeTitle = useText('work_time_title', 'contact');
+  const workTimeText = useText('work_time_text', 'contact');
+  const workTimeDesc = useText('work_time_desc', 'contact');
+
+  // 联系表单
+  const formTitle = useText('form_title', 'contact');
+  const formDescription = useText('form_description', 'contact');
+
+  const nameLabel = useText('name_label', 'contact');
+  const namePlaceholder = useText('name_placeholder', 'contact');
+  const phoneLabel = useText('phone_label', 'contact');
+  const phonePlaceholder = useText('phone_placeholder', 'contact');
+  const courseLabel = useText('course_label', 'contact');
+  const coursePlaceholder = useText('course_placeholder', 'contact');
+  const messageLabel = useText('message_label', 'contact');
+  const messagePlaceholder = useText('message_placeholder', 'contact');
+
+  // 表单状态文本
+  const successTitle = useText('success_title', 'contact');
+  const successMessage = useText('success_message', 'contact');
+  const errorTitle = useText('error_title', 'contact');
+  const errorMessage = useText('error_message', 'contact');
+  const submittingText = useText('submitting_text', 'contact');
+  const submitButtonText = useText('submit_button_text', 'contact');
+
+  // 地图区域
+  const mapTitle = useText('map_title', 'contact', '位置导航');
+  const mapDescription = useText('map_description', 'contact');
+  const mapLoadingText = useText('map_loading_text', 'contact');
+  const mapAddressText = useText('map_address_text', 'contact');
+  const mapBusinessHours = useText('map_business_hours', 'contact');
+  const mapPhoneText = useText('map_phone_text', 'contact');
+
+  // 地图底部信息
+  const mapDetailAddressLabel = useText('map_detail_address_label', 'contact');
+  const mapDetailAddressText = useText('map_detail_address_text', 'contact');
+  const mapBusinessHoursLabel = useText('map_business_hours_label', 'contact');
+  const mapBusinessHoursText = useText('map_business_hours_text', 'contact');
+  const mapContactPhoneLabel = useText('map_contact_phone_label', 'contact');
+  const mapContactPhoneText = useText('map_contact_phone_text', 'contact');
 
   // 表单验证配置
   const validationConfig = {
@@ -146,9 +210,9 @@ const ContactPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="联系我们 - 考研教育平台"
-        description="联系我们获取专业的考研咨询服务。提供多种联系方式，专业团队为您答疑解惑。"
-        keywords="联系我们,考研咨询,在线咨询,客服电话,地址"
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
       />
 
       <div className="min-h-screen bg-gray-50">
@@ -163,9 +227,9 @@ const ContactPage: React.FC = () => {
                         <ChatBubbleLeftRightIcon className="w-10 h-10 text-white" />
                       </div>
                   </div>
-                  <h1 className="text-4xl md:text-5xl font-bold mb-4">联系我们</h1>
+                  <h1 className="text-4xl md:text-5xl font-bold mb-4">{pageTitle}</h1>
                   <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-6">
-                    专业的考研咨询团队，随时为您提供帮助和指导
+                    {pageDescription}
                   </p>
                   
                   {/* 快速联系方式 */}
@@ -194,8 +258,8 @@ const ContactPage: React.FC = () => {
               <AnimatedContainer animation={{ type: 'slide-in-up', duration: 600 }}>
                 <div className="space-y-8">
                   <div>
-                    <h2 className="text-4xl font-bold text-gray-900 mb-4">联系方式</h2>
-                    <p className="text-lg text-gray-600 mb-12">多种联系方式，随时为您提供专业服务</p>
+                    <h2 className="text-4xl font-bold text-gray-900 mb-4">{consultationTitle}</h2>
+                    <p className="text-lg text-gray-600 mb-12">{pageDescription}</p>
                     
                     {/* 咨询热线 */}
                     <div className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 mb-6 border border-gray-100">
@@ -206,9 +270,9 @@ const ContactPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">咨询热线</h3>
-                          <p className="text-lg text-blue-600 font-semibold mb-2">400-123-4567</p>
-                          <p className="text-gray-600">免费咨询，专业解答</p>
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">{consultationTitle}</h3>
+                          <p className="text-lg text-blue-600 font-semibold mb-2">{consultationPhone}</p>
+                          <p className="text-gray-600">{consultationDesc}</p>
                         </div>
                       </div>
                     </div>
@@ -224,10 +288,9 @@ const ContactPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">办公地址</h3>
-                          <p className="text-gray-700 mb-1">北京市海淀区中关村大街123号</p>
-                          <p className="text-gray-700 mb-2">科技大厦15层</p>
-                          <p className="text-gray-600">欢迎预约实地参观</p>
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">{addressTitle}</h3>
+                          <p className="text-gray-700 mb-2">{addressText}</p>
+                          <p className="text-gray-600">{addressDesc}</p>
                         </div>
                       </div>
                     </div>
@@ -241,9 +304,9 @@ const ContactPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">微信咨询</h3>
-                          <p className="text-lg text-purple-600 font-semibold mb-2">kaoyan_edu_2024</p>
-                          <p className="text-gray-600">扫码添加，即时沟通</p>
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">{wechatTitle}</h3>
+                          <p className="text-lg text-purple-600 font-semibold mb-2">{wechatId}</p>
+                          <p className="text-gray-600">{wechatDesc}</p>
                         </div>
                       </div>
                     </div>
@@ -254,12 +317,12 @@ const ContactPage: React.FC = () => {
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
                           <ClockIcon className="w-6 h-6 text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900">工作时间</h3>
+                        <h3 className="text-2xl font-bold text-gray-900">{workTimeTitle}</h3>
                       </div>
                       <div className="space-y-4">
                         <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-700 font-medium">周一至周五</span>
-                          <span className="text-gray-900 font-bold bg-white px-4 py-2 rounded-lg">9:00 - 18:00</span>
+                          <span className="text-gray-700 font-medium">{workTimeTitle}</span>
+                          <span className="text-gray-900 font-bold bg-white px-4 py-2 rounded-lg">{workTimeText}</span>
                         </div>
                         <div className="flex justify-between items-center py-2">
                           <span className="text-gray-700 font-medium">周六至周日</span>
@@ -267,7 +330,7 @@ const ContactPage: React.FC = () => {
                         </div>
                         <div className="flex justify-between items-center py-2">
                           <span className="text-gray-700 font-medium">节假日</span>
-                          <span className="text-gray-900 font-bold bg-white px-4 py-2 rounded-lg">预约咨询</span>
+                          <span className="text-gray-900 font-bold bg-white px-4 py-2 rounded-lg">{workTimeDesc}</span>
                         </div>
                       </div>
                     </div>
@@ -288,15 +351,15 @@ const ContactPage: React.FC = () => {
                         <PaperAirplaneIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold text-gray-900">在线咨询</h2>
-                        <p className="text-gray-600 mt-1">填写表单，我们将尽快与您联系</p>
+                        <h2 className="text-3xl font-bold text-gray-900">{formTitle}</h2>
+                        <p className="text-gray-600 mt-1">{formDescription}</p>
                       </div>
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       {/* 姓名 */}
                       <div>
                         <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-3">
-                          姓名 <span className="text-red-500">*</span>
+                          {nameLabel} <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -313,7 +376,7 @@ const ContactPage: React.FC = () => {
                               "w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white focus:bg-white",
                               hasFieldError('name') && "border-red-300 focus:border-red-500 focus:ring-red-500"
                             )}
-                            placeholder="请输入您的姓名"
+                            placeholder={namePlaceholder}
                           />
                         </div>
                         {hasFieldError('name') && (
@@ -326,7 +389,7 @@ const ContactPage: React.FC = () => {
                       {/* 电话 */}
                       <div>
                         <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-3">
-                          联系电话 <span className="text-red-500">*</span>
+                          {phoneLabel} <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -343,7 +406,7 @@ const ContactPage: React.FC = () => {
                               "w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white focus:bg-white",
                               hasFieldError('phone') && "border-red-300 focus:border-red-500 focus:ring-red-500"
                             )}
-                            placeholder="请输入您的联系电话"
+                            placeholder={phonePlaceholder}
                           />
                         </div>
                         {hasFieldError('phone') && (
@@ -358,7 +421,7 @@ const ContactPage: React.FC = () => {
                       {/* 课程兴趣 */}
                       <div>
                         <label htmlFor="course_interest" className="block text-sm font-semibold text-gray-700 mb-3">
-                          感兴趣的课程
+                          {courseLabel}
                         </label>
                         <select
                           id="course_interest"
@@ -370,7 +433,7 @@ const ContactPage: React.FC = () => {
                             hasFieldError('course_interest') && "border-red-300 focus:border-red-500 focus:ring-red-500"
                           )}
                         >
-                          <option value="">请选择感兴趣的课程</option>
+                          <option value="">{coursePlaceholder}</option>
                           <option value="数学">考研数学</option>
                           <option value="英语">考研英语</option>
                           <option value="政治">考研政治</option>
@@ -390,7 +453,7 @@ const ContactPage: React.FC = () => {
                       {/* 详细信息 */}
                       <div>
                         <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-3">
-                          详细信息
+                          {messageLabel}
                         </label>
                         <textarea
                           id="message"
@@ -402,7 +465,7 @@ const ContactPage: React.FC = () => {
                             "w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-300 bg-gray-50 hover:bg-white focus:bg-white",
                             hasFieldError('message') && "border-red-300 focus:border-red-500 focus:ring-red-500"
                           )}
-                          placeholder="请详细描述您的问题或需求，我们会尽快为您解答"
+                          placeholder={messagePlaceholder}
                         />
                         {hasFieldError('message') && (
                           <p className="mt-2 text-sm text-red-600">
@@ -419,8 +482,8 @@ const ContactPage: React.FC = () => {
                               <CheckCircleIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                              <p className="text-green-800 font-semibold text-lg">提交成功！</p>
-                              <p className="text-green-700 text-sm mt-1">我们会尽快与您联系，请保持电话畅通。</p>
+                              <p className="text-green-800 font-semibold text-lg">{successTitle}</p>
+                              <p className="text-green-700 text-sm mt-1">{successMessage}</p>
                             </div>
                           </div>
                         </div>
@@ -433,8 +496,8 @@ const ContactPage: React.FC = () => {
                               <ExclamationTriangleIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                              <p className="text-red-800 font-semibold text-lg">提交失败</p>
-                              <p className="text-red-700 text-sm mt-1">请稍后重试或直接联系我们的客服热线。</p>
+                              <p className="text-red-800 font-semibold text-lg">{errorTitle}</p>
+                              <p className="text-red-700 text-sm mt-1">{errorMessage}</p>
                             </div>
                           </div>
                         </div>
@@ -452,12 +515,12 @@ const ContactPage: React.FC = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        提交中...
+                        {submittingText}
                       </div>
                     ) : (
                       <div className="flex items-center justify-center">
                         <PaperAirplaneIcon className="w-5 h-5 mr-2" />
-                        提交咨询
+                        {submitButtonText}
                       </div>
                     )}
                   </button>
@@ -480,11 +543,11 @@ const ContactPage: React.FC = () => {
                     <MapPinIcon className="h-6 w-6 text-white" />
                   </div>
                   <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                    位置导航
+                    {mapTitle}
                   </h2>
                 </div>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  欢迎来到我们的办公地点进行面对面咨询，我们期待与您的会面
+                  {mapDescription}
                 </p>
               </div>
               
@@ -502,16 +565,16 @@ const ContactPage: React.FC = () => {
                     <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                       <MapPinIcon className="h-10 w-10 text-white" />
                     </div>
-                    <p className="text-gray-600 text-lg font-medium mb-2">地图加载中...</p>
-                    <p className="text-gray-500 mb-4">北京市海淀区中关村大街123号科技大厦15层</p>
+                    <p className="text-gray-600 text-lg font-medium mb-2">{mapLoadingText}</p>
+                    <p className="text-gray-500 mb-4">{mapAddressText}</p>
                     <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
                       <div className="flex items-center">
                         <ClockIcon className="h-4 w-4 mr-1" />
-                        <span>营业时间: 9:00-18:00</span>
+                        <span>{mapBusinessHours}</span>
                       </div>
                       <div className="flex items-center">
                         <PhoneIcon className="h-4 w-4 mr-1" />
-                        <span>400-123-4567</span>
+                        <span>{mapPhoneText}</span>
                       </div>
                     </div>
                   </div>
@@ -525,8 +588,8 @@ const ContactPage: React.FC = () => {
                         <MapPinIcon className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">详细地址</p>
-                        <p className="text-sm text-gray-600">北京市海淀区中关村大街123号科技大厦15层</p>
+                        <p className="font-medium text-gray-900">{mapDetailAddressLabel}</p>
+                        <p className="text-sm text-gray-600">{mapDetailAddressText}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
@@ -534,8 +597,8 @@ const ContactPage: React.FC = () => {
                         <ClockIcon className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">营业时间</p>
-                        <p className="text-sm text-gray-600">周一至周日 9:00-18:00</p>
+                        <p className="font-medium text-gray-900">{mapBusinessHoursLabel}</p>
+                        <p className="text-sm text-gray-600">{mapBusinessHoursText}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
@@ -543,8 +606,8 @@ const ContactPage: React.FC = () => {
                         <PhoneIcon className="h-5 w-5 text-purple-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">联系电话</p>
-                        <p className="text-sm text-gray-600">400-123-4567</p>
+                        <p className="font-medium text-gray-900">{mapContactPhoneLabel}</p>
+                        <p className="text-sm text-gray-600">{mapContactPhoneText}</p>
                       </div>
                     </div>
                   </div>

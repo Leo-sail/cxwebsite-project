@@ -321,7 +321,7 @@ export const TooltipContent: React.FC<{
   className?: string;
   side?: 'top' | 'right' | 'bottom' | 'left';
   align?: 'start' | 'center' | 'end';
-}> = ({ children, className, side = 'top', align = 'center' }) => {
+}> = ({ children, className }) => {
   return (
     <div 
       className={cn(

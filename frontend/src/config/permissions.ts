@@ -265,6 +265,36 @@ export const DEFAULT_PERMISSIONS: Permission[] = [
     resource: 'roles',
     action: 'delete',
     description: '删除角色'
+  },
+
+  // 信息管理权限
+  {
+    id: 'content-management.create',
+    name: '创建信息',
+    resource: 'content-management',
+    action: 'create',
+    description: '创建新的信息内容'
+  },
+  {
+    id: 'content-management.read',
+    name: '查看信息',
+    resource: 'content-management',
+    action: 'read',
+    description: '查看信息列表和详情'
+  },
+  {
+    id: 'content-management.update',
+    name: '编辑信息',
+    resource: 'content-management',
+    action: 'update',
+    description: '编辑信息内容'
+  },
+  {
+    id: 'content-management.delete',
+    name: '删除信息',
+    resource: 'content-management',
+    action: 'delete',
+    description: '删除信息内容'
   }
 ];
 
@@ -298,7 +328,7 @@ export const DEFAULT_ROLES: Role[] = [
     displayName: '编辑员',
     level: 60,
     permissions: DEFAULT_PERMISSIONS.filter(p => 
-      ['dashboard.read', 'courses', 'teachers', 'articles', 'student-cases', 'media'].some(resource => 
+      ['dashboard.read', 'courses', 'teachers', 'articles', 'student-cases', 'media', 'content-management'].some(resource => 
         p.resource === resource && !p.id.includes('delete')
       )
     ),
@@ -445,6 +475,12 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     resource: 'roles',
     action: 'read',
     allowedRoles: ['super_admin']
+  },
+  {
+    path: '/admin/content-management',
+    resource: 'content-management',
+    action: 'read',
+    allowedRoles: ['super_admin', 'admin', 'editor', 'viewer']
   }
 ];
 
@@ -591,6 +627,11 @@ export const MENU_PERMISSIONS: MenuPermission[] = [
     resource: 'roles',
     action: 'read',
     requiredRole: 'super_admin'
+  },
+  {
+    path: '/admin/content-management',
+    resource: 'content-management',
+    action: 'read'
   }
 ];
 

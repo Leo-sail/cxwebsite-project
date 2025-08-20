@@ -136,7 +136,7 @@ export {
 export {
   CSSVariableGenerator,
   ColorUtils,
-  /** @deprecated 请使用新的统一断点系统 from '../config/breakpoints' */
+  
   ResponsiveUtils,
   StyleMerger,
   ThemeValidator,

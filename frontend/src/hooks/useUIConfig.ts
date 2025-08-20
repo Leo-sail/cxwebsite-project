@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { uiConfigApi } from '../services/api';
 
 /**
@@ -37,39 +38,19 @@ export interface UIConfig {
  * @returns 配置数据和加载状态
  */
 export const useUIConfig = (configKey: string) => {
-  const [config, setConfig] = useState<UIConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: config, isLoading: loading, error } = useQuery({
+    queryKey: ['ui-config', configKey],
+    queryFn: () => uiConfigApi.getByConfigKey(configKey),
+    enabled: !!configKey,
+    staleTime: 10 * 60 * 1000, // 10分钟
+    retry: 1, // 只重试1次
+  });
 
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const data = await uiConfigApi.getByConfigKey(configKey);
-        
-        if (data) {
-          setConfig(data as unknown as UIConfig);
-        } else {
-          // 未找到配置，使用默认值
-          setConfig(null);
-        }
-      } catch (err) {
-        console.error('获取UI配置失败:', err);
-        setError(err instanceof Error ? err.message : '获取配置失败');
-        setConfig(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (configKey) {
-      fetchConfig();
-    }
-  }, [configKey]);
-
-  return { config, loading, error };
+  return { 
+    config: config as UIConfig | null, 
+    loading, 
+    error: error ? (error instanceof Error ? error.message : '获取配置失败') : null 
+  };
 };
 
 /**
@@ -84,15 +65,19 @@ export const useTeacherAvatarSize = (variant: 'sm' | 'md' | 'lg' = 'md') => {
     if (!config) return null;
     
     // 如果指定了变体且存在，使用变体配置
-    if (variant !== 'md' && config.config_value.variants?.[variant]) {
+    if (variant !== 'md' && config.config_value?.variants?.[variant]) {
       return config.config_value.variants[variant];
     }
     
     // 否则使用默认配置
-    return {
-      mobile: config.config_value.mobile,
-      desktop: config.config_value.desktop
-    };
+    if (config.config_value) {
+      return {
+        mobile: config.config_value.mobile,
+        desktop: config.config_value.desktop
+      };
+    }
+    
+    return null;
   };
 
   return {

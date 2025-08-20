@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ImageUploadService } from '../../services/imageUploadService';
 import type { Database } from '../../types/database';
+import { isValidImageSrc } from '../../utils/mediaValidation';
 
 type ImageInfo = Database['public']['Tables']['media_files']['Row'];
 
@@ -254,12 +255,18 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
               >
                 {/* 图片 */}
                 <div className="aspect-square overflow-hidden">
-                  <img
-                    src={image.file_path}
-                    alt={image.filename}
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
+                  {isValidImageSrc(image.file_path) ? (
+                    <img
+                      src={image.file_path}
+                      alt={image.filename}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">无效图片</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* 选择指示器 */}

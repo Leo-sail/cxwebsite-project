@@ -1,21 +1,16 @@
 /**
  * 主题系统核心服务
- * 提供主题管理的核心功能，包括主题加载、缓存、更新等
+ * 提供主题管理的核心功能，基于ui_configs表实现
  */
 import { supabase } from '../lib/supabase';
-import type {
-  ThemeConfig,
-  ThemeConfigInsert,
-  ThemeConfigUpdate,
-  PageStyle,
-  ComponentStyle
-} from '../types/database';
+import type { UiConfig, UiConfigInsert, UiConfigUpdate } from '../types/database';
 
 /**
  * 主题配置接口
  */
 export interface ThemeConfiguration {
   id: string;
+  name: string;
   colors: {
     primary: string;
     secondary: string;
@@ -72,6 +67,24 @@ export interface ThemeConfiguration {
 }
 
 /**
+ * 页面样式配置接口
+ */
+export interface PageStyleConfiguration {
+  id: string;
+  pageName: string;
+  styles: Record<string, any>;
+}
+
+/**
+ * 组件样式配置接口
+ */
+export interface ComponentStyleConfiguration {
+  id: string;
+  componentName: string;
+  styles: Record<string, any>;
+}
+
+/**
  * 主题缓存管理器
  */
 class ThemeCache {
@@ -98,10 +111,7 @@ class ThemeCache {
    * 设置缓存数据
    */
   set<T>(key: string, data: T): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
+    this.cache.set(key, { data, timestamp: Date.now() });
   }
 
   /**
@@ -133,13 +143,14 @@ class ThemeCache {
  */
 export class ThemeDAO {
   /**
-   * 获取活跃主题
+   * 获取活跃主题配置
    */
-  static async findActiveTheme(): Promise<ThemeConfig | null> {
+  static async findActiveTheme(): Promise<UiConfig | null> {
     try {
       const { data, error } = await supabase
-        .from('theme_configs')
+        .from('ui_configs')
         .select('*')
+        .eq('config_type', 'theme')
         .eq('is_active', true)
         .single();
 
@@ -155,13 +166,14 @@ export class ThemeDAO {
   }
 
   /**
-   * 获取所有主题
+   * 获取所有主题配置
    */
-  static async findAllThemes(): Promise<ThemeConfig[]> {
+  static async findAllThemes(): Promise<UiConfig[]> {
     try {
       const { data, error } = await supabase
-        .from('theme_configs')
+        .from('ui_configs')
         .select('*')
+        .eq('config_type', 'theme')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -176,14 +188,15 @@ export class ThemeDAO {
   }
 
   /**
-   * 根据ID获取主题
+   * 根据ID获取主题配置
    */
-  static async findThemeById(id: string): Promise<ThemeConfig | null> {
+  static async findThemeById(id: string): Promise<UiConfig | null> {
     try {
       const { data, error } = await supabase
-        .from('theme_configs')
+        .from('ui_configs')
         .select('*')
         .eq('id', id)
+        .eq('config_type', 'theme')
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -198,13 +211,13 @@ export class ThemeDAO {
   }
 
   /**
-   * 创建新主题
+   * 创建主题配置
    */
-  static async createTheme(theme: ThemeConfigInsert): Promise<string> {
+  static async createTheme(theme: UiConfigInsert): Promise<string> {
     try {
       const { data, error } = await supabase
-        .from('theme_configs')
-        .insert(theme)
+        .from('ui_configs')
+        .insert({ ...theme, config_type: 'theme' })
         .select('id')
         .single();
 
@@ -220,14 +233,15 @@ export class ThemeDAO {
   }
 
   /**
-   * 更新主题
+   * 更新主题配置
    */
-  static async updateTheme(id: string, updates: ThemeConfigUpdate): Promise<ThemeConfig> {
+  static async updateTheme(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
     try {
       const { data, error } = await supabase
-        .from('theme_configs')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .from('ui_configs')
+        .update(updates)
         .eq('id', id)
+        .eq('config_type', 'theme')
         .select()
         .single();
 
@@ -243,14 +257,15 @@ export class ThemeDAO {
   }
 
   /**
-   * 删除主题
+   * 删除主题配置
    */
   static async deleteTheme(id: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('theme_configs')
+        .from('ui_configs')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('config_type', 'theme');
 
       if (error) {
         throw new Error(`删除主题失败: ${error.message}`);
@@ -267,23 +282,20 @@ export class ThemeDAO {
   static async setActiveTheme(id: string): Promise<void> {
     try {
       // 先将所有主题设为非活跃
-      const { error: deactivateError } = await supabase
-        .from('theme_configs')
+      await supabase
+        .from('ui_configs')
         .update({ is_active: false })
-        .neq('id', id);
-
-      if (deactivateError) {
-        throw new Error(`取消其他主题活跃状态失败: ${deactivateError.message}`);
-      }
+        .eq('config_type', 'theme');
 
       // 设置指定主题为活跃
-      const { error: activateError } = await supabase
-        .from('theme_configs')
-        .update({ is_active: true, updated_at: new Date().toISOString() })
-        .eq('id', id);
+      const { error } = await supabase
+        .from('ui_configs')
+        .update({ is_active: true })
+        .eq('id', id)
+        .eq('config_type', 'theme');
 
-      if (activateError) {
-        throw new Error(`设置主题活跃状态失败: ${activateError.message}`);
+      if (error) {
+        throw new Error(`设置活跃主题失败: ${error.message}`);
       }
     } catch (error) {
       console.error('ThemeDAO.setActiveTheme error:', error);
@@ -292,15 +304,15 @@ export class ThemeDAO {
   }
 
   /**
-   * 获取页面样式
+   * 获取页面样式配置
    */
-  static async findPageStyles(themeId: string, pageName: string): Promise<PageStyle[]> {
+  static async findPageStyles(pageName: string): Promise<UiConfig[]> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
+        .from('ui_configs')
         .select('*')
-        .eq('theme_id', themeId)
-        .eq('page_name', pageName)
+        .eq('config_type', 'page')
+        .contains('page_scope', [pageName])
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
@@ -316,15 +328,15 @@ export class ThemeDAO {
   }
 
   /**
-   * 获取组件样式
+   * 获取组件样式配置
    */
-  static async findComponentStyles(themeId: string, componentName: string): Promise<ComponentStyle[]> {
+  static async findComponentStyles(componentName: string): Promise<UiConfig[]> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
+        .from('ui_configs')
         .select('*')
-        .eq('theme_id', themeId)
-        .eq('component_name', componentName)
+        .eq('config_type', 'component')
+        .eq('component_type', componentName)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
@@ -341,8 +353,7 @@ export class ThemeDAO {
 }
 
 /**
- * 主题系统核心服务类
- * 实现单例模式，提供主题管理的核心功能
+ * 主题服务类
  */
 export class ThemeService {
   private static instance: ThemeService;
@@ -351,14 +362,10 @@ export class ThemeService {
 
   private constructor() {
     this.cache = new ThemeCache();
-    // 定期清理过期缓存
-    setInterval(() => {
-      this.cache.clearExpired();
-    }, 60000); // 每分钟清理一次
   }
 
   /**
-   * 获取服务实例（单例模式）
+   * 获取单例实例
    */
   static getInstance(): ThemeService {
     if (!ThemeService.instance) {
@@ -368,22 +375,18 @@ export class ThemeService {
   }
 
   /**
-   * 获取活跃主题配置
+   * 获取活跃主题
    */
   async getActiveTheme(): Promise<ThemeConfiguration> {
-    const cacheKey = 'active-theme';
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<ThemeConfiguration>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
+      const cacheKey = 'active-theme';
+      const cached = this.cache.get<ThemeConfiguration>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const themeData = await ThemeDAO.findActiveTheme();
-      
       if (!themeData) {
-        // 如果没有活跃主题，返回默认主题
         const defaultTheme = this.getDefaultTheme();
         this.cache.set(cacheKey, defaultTheme);
         return defaultTheme;
@@ -393,73 +396,63 @@ export class ThemeService {
       this.cache.set(cacheKey, theme);
       return theme;
     } catch (error) {
-      console.error('获取活跃主题失败:', error);
-      // 返回默认主题作为降级方案
-      const defaultTheme = this.getDefaultTheme();
-      this.cache.set(cacheKey, defaultTheme);
-      return defaultTheme;
+      console.error('ThemeService.getActiveTheme error:', error);
+      return this.getDefaultTheme();
     }
   }
 
   /**
    * 获取所有主题
    */
-  async getAllThemes(): Promise<ThemeConfig[]> {
-    const cacheKey = 'all-themes';
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<ThemeConfig[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
+  async getAllThemes(): Promise<UiConfig[]> {
     try {
+      const cacheKey = 'all-themes';
+      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const themes = await ThemeDAO.findAllThemes();
       this.cache.set(cacheKey, themes);
       return themes;
     } catch (error) {
-      console.error('获取主题列表失败:', error);
-      throw error;
+      console.error('ThemeService.getAllThemes error:', error);
+      return [];
     }
   }
 
   /**
    * 根据ID获取主题
    */
-  async getThemeById(id: string): Promise<ThemeConfig | null> {
-    const cacheKey = `theme-${id}`;
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<ThemeConfig>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
+  async getThemeById(id: string): Promise<UiConfig | null> {
     try {
+      const cacheKey = `theme-${id}`;
+      const cached = this.cache.get<UiConfig>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const theme = await ThemeDAO.findThemeById(id);
       if (theme) {
         this.cache.set(cacheKey, theme);
       }
       return theme;
     } catch (error) {
-      console.error('获取主题失败:', error);
-      throw error;
+      console.error('ThemeService.getThemeById error:', error);
+      return null;
     }
   }
 
   /**
-   * 创建新主题
+   * 创建主题
    */
-  async createTheme(themeData: ThemeConfigInsert): Promise<string> {
+  async createTheme(themeData: UiConfigInsert): Promise<string> {
     try {
       const themeId = await ThemeDAO.createTheme(themeData);
-      
-      // 清除相关缓存
-      this.cache.clear('all-themes');
-      
+      this.clearCache();
       return themeId;
     } catch (error) {
-      console.error('创建主题失败:', error);
+      console.error('ThemeService.createTheme error:', error);
       throw error;
     }
   }
@@ -467,24 +460,13 @@ export class ThemeService {
   /**
    * 更新主题
    */
-  async updateTheme(id: string, updates: ThemeConfigUpdate): Promise<ThemeConfig> {
+  async updateTheme(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
     try {
       const updatedTheme = await ThemeDAO.updateTheme(id, updates);
-      
-      // 清除相关缓存
-      this.cache.clear(`theme-${id}`);
-      this.cache.clear('all-themes');
-      
-      // 如果更新的是活跃主题，清除活跃主题缓存并通知监听器
-      if (updatedTheme.is_active) {
-        this.cache.clear('active-theme');
-        const themeConfig = this.parseThemeConfig(updatedTheme.config_data);
-        this.notifyThemeUpdate(themeConfig);
-      }
-      
+      this.clearCache();
       return updatedTheme;
     } catch (error) {
-      console.error('更新主题失败:', error);
+      console.error('ThemeService.updateTheme error:', error);
       throw error;
     }
   }
@@ -495,31 +477,23 @@ export class ThemeService {
   async deleteTheme(id: string): Promise<void> {
     try {
       await ThemeDAO.deleteTheme(id);
-      
-      // 清除相关缓存
-      this.cache.clear(`theme-${id}`);
-      this.cache.clear('all-themes');
+      this.clearCache();
     } catch (error) {
-      console.error('删除主题失败:', error);
+      console.error('ThemeService.deleteTheme error:', error);
       throw error;
     }
   }
 
   /**
-   * 切换活跃主题
+   * 切换主题
    */
   async switchTheme(id: string): Promise<void> {
     try {
-      await ThemeDAO.setActiveTheme(id);
-      
-      // 清除活跃主题缓存
-      this.cache.clear('active-theme');
-      
-      // 获取新的活跃主题并通知监听器
+      await this.setActiveTheme(id);
       const newTheme = await this.getActiveTheme();
       this.notifyThemeUpdate(newTheme);
     } catch (error) {
-      console.error('切换主题失败:', error);
+      console.error('ThemeService.switchTheme error:', error);
       throw error;
     }
   }
@@ -528,22 +502,26 @@ export class ThemeService {
    * 设置活跃主题
    */
   async setActiveTheme(id: string): Promise<void> {
-    return this.switchTheme(id);
+    await ThemeDAO.setActiveTheme(id);
+    this.clearCache();
   }
 
   /**
    * 获取页面样式
    */
-  async getPageStyles(pageName: string): Promise<PageStyle[]> {
+  async getPageStyles(pageName: string): Promise<UiConfig[]> {
     try {
-      const activeTheme = await ThemeDAO.findActiveTheme();
-      if (!activeTheme) {
-        return [];
+      const cacheKey = `page-styles-${pageName}`;
+      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      if (cached) {
+        return cached;
       }
 
-      return await ThemeDAO.findPageStyles(activeTheme.id, pageName);
+      const styles = await ThemeDAO.findPageStyles(pageName);
+      this.cache.set(cacheKey, styles);
+      return styles;
     } catch (error) {
-      console.error('获取页面样式失败:', error);
+      console.error('ThemeService.getPageStyles error:', error);
       return [];
     }
   }
@@ -551,16 +529,19 @@ export class ThemeService {
   /**
    * 获取组件样式
    */
-  async getComponentStyles(componentName: string): Promise<ComponentStyle[]> {
+  async getComponentStyles(componentName: string): Promise<UiConfig[]> {
     try {
-      const activeTheme = await ThemeDAO.findActiveTheme();
-      if (!activeTheme) {
-        return [];
+      const cacheKey = `component-styles-${componentName}`;
+      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      if (cached) {
+        return cached;
       }
 
-      return await ThemeDAO.findComponentStyles(activeTheme.id, componentName);
+      const styles = await ThemeDAO.findComponentStyles(componentName);
+      this.cache.set(cacheKey, styles);
+      return styles;
     } catch (error) {
-      console.error('获取组件样式失败:', error);
+      console.error('ThemeService.getComponentStyles error:', error);
       return [];
     }
   }
@@ -580,38 +561,38 @@ export class ThemeService {
   }
 
   /**
-   * 监听主题变化
+   * 主题变更回调
    */
   onThemeChange(callback: () => void): () => void {
     const listener = () => callback();
-    this.listeners.add(listener);
+    this.addThemeUpdateListener(listener);
     
     // 返回取消监听的函数
     return () => {
-      this.listeners.delete(listener);
+      this.removeThemeUpdateListener(listener);
     };
   }
 
   /**
-   * 清除所有缓存
+   * 清除缓存
    */
   clearCache(): void {
     this.cache.clear();
   }
 
   /**
-   * 解析主题配置数据
+   * 解析主题配置
    */
   parseThemeConfig(configData: unknown): ThemeConfiguration {
-    try {
-      if (typeof configData === 'string') {
-        return JSON.parse(configData);
-      }
-      return configData as ThemeConfiguration;
-    } catch (error) {
-      console.error('解析主题配置失败:', error);
-      return this.getDefaultTheme();
+    if (typeof configData === 'object' && configData !== null) {
+      return {
+        id: 'default',
+        name: 'Default Theme',
+        ...this.getDefaultTheme(),
+        ...(configData as Partial<ThemeConfiguration>)
+      };
     }
+    return this.getDefaultTheme();
   }
 
   /**
@@ -620,20 +601,21 @@ export class ThemeService {
   private getDefaultTheme(): ThemeConfiguration {
     return {
       id: 'default',
+      name: 'Default Theme',
       colors: {
-        primary: '#1677ff',
-        secondary: '#722ed1',
-        accent: '#13c2c2',
+        primary: '#3b82f6',
+        secondary: '#64748b',
+        accent: '#f59e0b',
         background: '#ffffff',
-        text: '#262626',
-        border: '#d9d9d9',
-        success: '#52c41a',
-        warning: '#faad14',
-        error: '#ff4d4f'
+        text: '#1f2937',
+        border: '#e5e7eb',
+        success: '#10b981',
+        warning: '#f59e0b',
+        error: '#ef4444'
       },
       fonts: {
-        primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        secondary: 'Georgia, "Times New Roman", Times, serif',
+        primary: 'Inter, sans-serif',
+        secondary: 'Georgia, serif',
         sizes: {
           xs: '0.75rem',
           sm: '0.875rem',
@@ -660,10 +642,10 @@ export class ThemeService {
         full: '9999px'
       },
       shadows: {
-        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        md: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        lg: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+        xl: '0 20px 25px -5px rgb(0 0 0 / 0.1)'
       }
     };
   }
@@ -676,7 +658,7 @@ export class ThemeService {
       try {
         listener(theme);
       } catch (error) {
-        console.error('主题更新监听器执行失败:', error);
+        console.error('Theme listener error:', error);
       }
     });
   }
@@ -684,6 +666,3 @@ export class ThemeService {
 
 // 导出单例实例
 export const themeService = ThemeService.getInstance();
-
-// 导出类型
-// export type { ThemeConfiguration }; // 已在接口定义处导出

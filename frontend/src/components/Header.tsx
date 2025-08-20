@@ -6,18 +6,19 @@ import { Link, useLocation } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { cn } from '../utils';
 import { useResponsive } from '../hooks/useResponsive';
+import { useText } from '../hooks/useText';
 
 /**
- * 导航菜单项
+ * 导航菜单项配置（路径和key映射）
  */
-const navigation = [
-  { name: '首页', href: '/' },
-  { name: '课程', href: '/courses' },
-  { name: '师资', href: '/teachers' },
-  { name: '学员案例', href: '/student-cases' },
-  { name: '文章', href: '/articles' },
-  { name: '关于我们', href: '/about' },
-  { name: '联系我们', href: '/contact' },
+const navigationConfig = [
+  { key: 'nav_home', href: '/' },
+  { key: 'nav_courses', href: '/courses' },
+  { key: 'nav_teachers', href: '/teachers' },
+  { key: 'nav_cases', href: '/student-cases' },
+  { key: 'nav_articles', href: '/articles' },
+  { key: 'nav_about', href: '/about' },
+  { key: 'nav_contact', href: '/contact' },
 ];
 
 /**
@@ -30,6 +31,16 @@ const Header = () => {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
   const touchStartY = useRef<number>(0);
+  
+  // 获取品牌名称
+  const brandText = useText('nav_brand', 'nav');
+  
+  // 构建导航菜单项（使用数据库文本）
+  const navigation = navigationConfig.map(item => ({
+    name: useText(item.key, 'nav'),
+    href: item.href,
+    key: item.key
+  }));
 
   /**
    * 检查当前路径是否激活
@@ -110,7 +121,7 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <span className="text-2xl font-bold text-primary-600">
-                {import.meta.env.VITE_APP_TITLE || '教育平台'}
+                {brandText || import.meta.env.VITE_APP_TITLE || '教育平台'}
               </span>
             </Link>
           </div>
@@ -119,7 +130,7 @@ const Header = () => {
           <div className="ml-10 hidden space-x-8 lg:block">
             {navigation.map((item) => (
               <Link
-                key={item.name}
+                key={item.key}
                 to={item.href}
                 className={cn(
                   'text-base font-medium transition-colors duration-200',
@@ -178,7 +189,7 @@ const Header = () => {
               <div className="px-4 py-6 space-y-2">
                 {navigation.map((item) => (
                   <Link
-                    key={item.name}
+                    key={item.key}
                     to={item.href}
                     className={cn(
                       'block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200',

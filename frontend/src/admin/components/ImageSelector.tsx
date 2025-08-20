@@ -214,12 +214,18 @@ export const ImageSelector: React.FC<ImageSelectorProps> = ({
                             onClick={() => handleImageSelect(image)}
                           >
                             <div className="aspect-square">
-                              <img
-                                src={imageUrl}
-                                alt={image.alt_text || image.filename}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
+                              {imageUrl && imageUrl.trim() !== '' ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={image.alt_text || image.filename}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                  <PhotoIcon className="w-8 h-8 text-gray-400" />
+                                </div>
+                              )}
                             </div>
                             {isSelected && (
                               <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
@@ -245,11 +251,17 @@ export const ImageSelector: React.FC<ImageSelectorProps> = ({
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">已选择的图片:</h4>
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={selectedImage}
-                        alt="选择的图片"
-                        className="w-16 h-16 object-cover rounded"
-                      />
+                      {selectedImage && selectedImage.trim() !== '' ? (
+                         <img
+                           src={selectedImage}
+                           alt="选择的图片"
+                           className="w-16 h-16 object-cover rounded"
+                         />
+                       ) : (
+                         <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded">
+                           <PhotoIcon className="w-6 h-6 text-gray-400" />
+                         </div>
+                       )}
                       <div className="flex-1">
                         <p className="text-sm text-gray-600 break-all">{selectedImage}</p>
                       </div>

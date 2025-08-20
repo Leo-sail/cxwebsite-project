@@ -6,12 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../services/queryClient';
 import { studentCaseApi } from '../services/api';
 import { SEO, StudentCasesPageHeaderIcon } from '../components';
-// import LoadingSpinner from '../components/LoadingSpinner';
+import { useText } from '../hooks/useText';
 import Pagination from '../components/Pagination';
 import { AnimatedContainer } from '../components/animation/AnimatedContainer';
 import { GradientBackground } from '../components/ui/GradientBackground';
-
-// import { useThemeContext } from '../contexts/ThemeContext';
 import { 
   AcademicCapIcon, 
   TrophyIcon, 
@@ -28,6 +26,31 @@ import type { StudentCase } from '../types';
 const StudentCasesPage: React.FC = () => {
   // const { theme } = useThemeContext();
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // 获取页面文字内容
+  const pageTitle = useText('cases_page_title', 'cases');
+  const pageSubtitle = useText('cases_page_subtitle', 'cases');
+  const seoTitle = useText('cases_seo_title', 'cases');
+  const seoDescription = useText('cases_seo_description', 'cases');
+  
+  // 统计数据文字
+  const statsSuccessLabel = useText('stats_success_label', 'cases') || '成功案例';
+  const statsSuccessDesc = useText('stats_success_desc', 'cases') || '真实可验证';
+  const statsSchoolNumber = useText('stats_school_number', 'cases') || '985+';
+  const statsSchoolLabel = useText('stats_school_label', 'cases') || '名校录取';
+  const statsSchoolDesc = useText('stats_school_desc', 'cases') || '名校资源';
+  const statsRateNumber = useText('stats_rate_number', 'cases') || '95%';
+  const statsRateLabel = useText('stats_rate_label', 'cases') || '录取率';
+  const statsRateDesc = useText('stats_rate_desc', 'cases') || '高成功率';
+  const statsScoreNumber = useText('stats_score_number', 'cases') || '380+';
+  const statsScoreLabel = useText('stats_score_label', 'cases') || '平均分数';
+  const statsScoreDesc = useText('stats_score_desc', 'cases') || '优异成绩';
+  
+  // 页面标签文字
+  const tagRealCases = useText('tag_real_cases', 'cases') || '真实案例';
+  const tagSuccessWitness = useText('tag_success_witness', 'cases') || '成功见证';
+  const tagEliteAdmission = useText('tag_elite_admission', 'cases') || '名校录取';
+  const tagTrustworthy = useText('tag_trustworthy', 'cases') || '真实案例，值得信赖';
 
   const pageSize = 12;
 
@@ -89,8 +112,8 @@ const StudentCasesPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="学员案例 - 考研教育平台"
-        description="真实的成功案例，见证我们的实力。查看学员的考研成功故事和经验分享。"
+        title={seoTitle || "学员案例 - 考研教育平台"}
+        description={seoDescription || "真实的成功案例，见证我们的实力。查看学员的考研成功故事和经验分享。"}
         keywords="考研成功案例,学员故事,考研经验,名校录取"
       />
 
@@ -110,8 +133,14 @@ const StudentCasesPage: React.FC = () => {
             >
               <StudentCasesPageHeaderIcon
                 icon={TrophyIcon}
-                title="学员案例"
-                subtitle={(
+                title={pageTitle || "学员案例"}
+                subtitle={pageSubtitle ? (
+                  <>
+                    {pageSubtitle}
+                    <br className="hidden md:block" />
+                    每一个成功背后都有我们的专业指导和学员的努力付出
+                  </>
+                ) : (
                   <>
                     真实的成功案例，见证我们的教学实力
                     <br className="hidden md:block" />
@@ -125,17 +154,17 @@ const StudentCasesPage: React.FC = () => {
               <div className="mt-8 flex items-center justify-center gap-6 text-white/80">
                 <div className="flex items-center gap-2">
                   <StarIcon className="h-5 w-5" />
-                  <span className="text-sm font-medium">真实案例</span>
+                  <span className="text-sm font-medium">{tagRealCases}</span>
                 </div>
                 <div className="w-1 h-1 bg-white/40 rounded-full" />
                 <div className="flex items-center gap-2">
                   <SparklesIcon className="h-5 w-5" />
-                  <span className="text-sm font-medium">成功见证</span>
+                  <span className="text-sm font-medium">{tagSuccessWitness}</span>
                 </div>
                 <div className="w-1 h-1 bg-white/40 rounded-full" />
                 <div className="flex items-center gap-2">
                   <AcademicCapIcon className="h-5 w-5" />
-                  <span className="text-sm font-medium">名校录取</span>
+                  <span className="text-sm font-medium">{tagEliteAdmission}</span>
                 </div>
               </div>
             </AnimatedContainer>
@@ -157,8 +186,8 @@ const StudentCasesPage: React.FC = () => {
                       <ChartBarIcon className="h-8 w-8 text-blue-600" />
                     </div>
                     <div className="text-4xl font-bold text-blue-600 mb-2">{totalCount}+</div>
-                    <div className="text-gray-600 font-medium">成功案例</div>
-                    <div className="text-sm text-gray-500 mt-1">真实可验证</div>
+                    <div className="text-gray-600 font-medium">{statsSuccessLabel}</div>
+                    <div className="text-sm text-gray-500 mt-1">{statsSuccessDesc}</div>
                   </div>
                 </div>
                 
@@ -168,9 +197,9 @@ const StudentCasesPage: React.FC = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                       <AcademicCapIcon className="h-8 w-8 text-green-600" />
                     </div>
-                    <div className="text-4xl font-bold text-green-600 mb-2">985+</div>
-                    <div className="text-gray-600 font-medium">名校录取</div>
-                    <div className="text-sm text-gray-500 mt-1">名校资源</div>
+                    <div className="text-4xl font-bold text-green-600 mb-2">{statsSchoolNumber}</div>
+                    <div className="text-gray-600 font-medium">{statsSchoolLabel}</div>
+                    <div className="text-sm text-gray-500 mt-1">{statsSchoolDesc}</div>
                   </div>
                 </div>
                 
@@ -180,9 +209,9 @@ const StudentCasesPage: React.FC = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
                       <TrophyIcon className="h-8 w-8 text-purple-600" />
                     </div>
-                    <div className="text-4xl font-bold text-purple-600 mb-2">95%</div>
-                    <div className="text-gray-600 font-medium">录取率</div>
-                    <div className="text-sm text-gray-500 mt-1">高成功率</div>
+                    <div className="text-4xl font-bold text-purple-600 mb-2">{statsRateNumber}</div>
+                    <div className="text-gray-600 font-medium">{statsRateLabel}</div>
+                    <div className="text-sm text-gray-500 mt-1">{statsRateDesc}</div>
                   </div>
                 </div>
                 
@@ -192,9 +221,9 @@ const StudentCasesPage: React.FC = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
                       <StarIcon className="h-8 w-8 text-orange-600" />
                     </div>
-                    <div className="text-4xl font-bold text-orange-600 mb-2">380+</div>
-                    <div className="text-gray-600 font-medium">平均分数</div>
-                    <div className="text-sm text-gray-500 mt-1">优异成绩</div>
+                    <div className="text-4xl font-bold text-orange-600 mb-2">{statsScoreNumber}</div>
+                    <div className="text-gray-600 font-medium">{statsScoreLabel}</div>
+                    <div className="text-sm text-gray-500 mt-1">{statsScoreDesc}</div>
                   </div>
                 </div>
               </div>
@@ -256,7 +285,7 @@ const StudentCasesPage: React.FC = () => {
                       </div>
                       <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
                         <SparklesIcon className="w-4 h-4" />
-                        <span>真实案例，值得信赖</span>
+                        <span>{tagTrustworthy}</span>
                       </div>
                     </div>
                   </div>

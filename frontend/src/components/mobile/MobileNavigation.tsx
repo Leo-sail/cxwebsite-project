@@ -8,6 +8,7 @@ import { cn } from '../../utils';
 import { TouchableArea } from './TouchableArea';
 import { useResponsive } from '../../hooks/useResponsive';
 import { hapticFeedback } from '../../utils/touchGestures';
+import { useText } from '../../hooks/useText';
 import {
   HomeIcon,
   AcademicCapIcon,
@@ -32,40 +33,52 @@ interface NavigationItem {
 }
 
 /**
- * 默认导航配置
+ * 导航配置（key映射）
  */
-const defaultNavItems: NavigationItem[] = [
+const navigationConfig = [
   {
     id: 'home',
-    label: '首页',
+    key: 'nav_home',
     path: '/',
     icon: HomeIcon
   },
   {
     id: 'courses',
-    label: '课程',
+    key: 'nav_courses',
     path: '/courses',
     icon: AcademicCapIcon
   },
   {
     id: 'teachers',
-    label: '师资',
+    key: 'nav_teachers',
     path: '/teachers',
     icon: UserGroupIcon
   },
   {
     id: 'articles',
-    label: '文章',
+    key: 'nav_articles',
     path: '/articles',
     icon: DocumentTextIcon
   },
   {
     id: 'contact',
-    label: '联系',
+    key: 'nav_contact',
     path: '/contact',
     icon: PhoneIcon
   }
 ];
+
+/**
+ * 获取默认导航项（使用数据库文本）
+ */
+const useDefaultNavItems = (): NavigationItem[] => {
+  return navigationConfig.map(item => ({
+    id: item.id,
+    label: useText(item.key, 'nav'),
+    path: item.path,
+    icon: item.icon
+  }));
+};
 
 /**
  * 底部导航栏属性接口
@@ -84,7 +97,7 @@ interface BottomNavigationProps {
  * 底部导航栏组件
  */
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
-  items = defaultNavItems,
+  items,
   className,
   activeColor = 'text-blue-600',
   inactiveColor = 'text-gray-500',
@@ -94,10 +107,12 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 }) => {
   const location = useLocation();
   const { isMobile } = useResponsive();
+  const defaultNavItems = useDefaultNavItems();
+  const navItems = items || defaultNavItems;
   
   // 限制显示的导航项数量
-  const visibleItems = items.slice(0, maxItems);
-  const hasMoreItems = items.length > maxItems;
+  const visibleItems = navItems.slice(0, maxItems);
+  const hasMoreItems = navItems.length > maxItems;
   
   // 检查当前路径是否匹配
   const isActive = (path: string) => {
@@ -182,7 +197,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
               <Bars3Icon className="w-6 h-6" />
               {showLabels && (
                 <span className="text-xs mt-1 leading-none">
-                  更多
+                  {useText('nav_more', 'nav') || '更多'}
                 </span>
               )}
             </button>
@@ -213,7 +228,7 @@ interface SideMenuProps {
 export const SideMenu: React.FC<SideMenuProps> = ({
   isOpen,
   onClose,
-  items = defaultNavItems,
+  items,
   className,
   overlayClassName,
   menuClassName,
@@ -224,6 +239,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   const { isMobile } = useResponsive();
   const menuRef = useRef<HTMLDivElement>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const defaultNavItems = useDefaultNavItems();
+  const menuItems = items || defaultNavItems;
   
   // 检查当前路径是否匹配
   const isActive = (path: string) => {
@@ -388,7 +405,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       >
         {/* 菜单头部 */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">菜单</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{useText('nav_menu', 'nav') || '菜单'}</h2>
           <TouchableArea
             onTap={onClose}
             hapticEnabled
@@ -402,7 +419,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
         
         {/* 菜单项列表 */}
         <div className="py-2">
-          {items.map(item => renderMenuItem(item))}
+          {menuItems.map(item => renderMenuItem(item))}
         </div>
       </div>
     </div>

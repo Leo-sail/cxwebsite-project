@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { SEO } from '../../components';
-import { useAuth } from '../../hooks/useAuthHooks';
+import { useAuth } from '../../hooks/useAuth';
 
 import { useFormValidation, CommonValidationRules } from '../../hooks/useValidation';
 
@@ -81,12 +81,13 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    clearErrors();
 
     // 验证表单数据
     const validationResult = validateForm(formData);
     
     if (!validationResult.isValid) {
-      setError('请检查输入信息');
+      setError('请检查输入信息是否正确');
       setLoading(false);
       return;
     }
@@ -95,13 +96,35 @@ const Login: React.FC = () => {
       // 使用清理后的数据进行登录
       const sanitizedData = validationResult.sanitizedValue || formData;
       const result = await login(sanitizedData.email, sanitizedData.password);
+      
       if (result.error) {
-        setError(result.error);
+        // 提供更具体的错误信息
+        if (result.error.includes('Invalid login credentials')) {
+          setError('邮箱或密码错误，请检查后重试');
+        } else if (result.error.includes('Email not confirmed')) {
+          setError('邮箱未验证，请先验证邮箱');
+        } else if (result.error.includes('Too many requests')) {
+          setError('登录尝试过于频繁，请稍后再试');
+        } else if (result.error.includes('Network')) {
+          setError('网络连接异常，请检查网络后重试');
+        } else {
+          setError(result.error || '登录失败，请重试');
+        }
+        return;
       }
+      
       // 登录成功的情况下，useEffect会处理重定向
     } catch (err: unknown) {
       console.error('登录错误:', err);
-      setError('登录失败，请重试');
+      if (err instanceof Error) {
+        if (err.message.includes('fetch')) {
+          setError('网络连接失败，请检查网络连接');
+        } else {
+          setError(`登录失败: ${err.message}`);
+        }
+      } else {
+        setError('登录失败，请重试');
+      }
     } finally {
       setLoading(false);
     }

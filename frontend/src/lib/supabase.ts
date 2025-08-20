@@ -16,6 +16,16 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  },
+  global: {
+    headers: {
+      'x-my-custom-header': 'my-app-name'
+    }
   }
 });
 
@@ -30,10 +40,8 @@ export const TABLES = {
   PAGE_CONFIGS: 'page_configs',
   MEDIA_FILES: 'media_files',
   ADMIN_USERS: 'admin_users',
-  THEME_CONFIGS: 'theme_configs',
-  COMPONENT_STYLES: 'component_styles',
-  PAGE_STYLES: 'page_styles',
   CONTACT_SUBMISSIONS: 'contact_submissions',
   CONTACT_INFO: 'contact_info',
-  UI_CONFIGS: 'ui_configs'
+  UI_CONFIGS: 'ui_configs',
+  COMPONENT_TEXT_STORAGE: 'component_text_storage'
 } as const;

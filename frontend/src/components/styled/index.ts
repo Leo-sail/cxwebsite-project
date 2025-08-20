@@ -47,16 +47,7 @@ export {
 } from './StyledComponents';
 
 // 高级样式化组件功能
-export {
-  createResponsiveStyledComponent,
-  createConditionalStyledComponent,
-  createAnimatedStyledComponent,
-  StyledComponentComposer,
-  StyledComponentUtils,
-  type ResponsiveStyledConfig,
-  type ConditionalStyleConfig,
-  type AnimatedStyledConfig
-} from './StyledComponentAdvanced';
+// 高级样式组件功能 - 已移除未使用的模块
 
 // 样式化组件系统配置
 export const StyledComponentSystemConfig = {

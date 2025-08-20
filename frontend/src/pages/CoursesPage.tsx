@@ -9,6 +9,7 @@ import { courseApi } from '../services/api';
 import type { Course } from '../types';
 import { cn, debounce } from '../utils';
 import { AnimatedContainer } from '../components/animation/AnimatedContainer';
+import { useText } from '../hooks/useText';
 
 import { 
   useResponsive, 
@@ -18,17 +19,16 @@ import {
   useResponsiveSpacing 
 } from '../hooks/useResponsive';
 import { TouchableButton, TouchableCard, MobileInput } from '../components/mobile';
-// import { hapticFeedback } from '../utils/touchGestures';
 
 /**
- * 课程分类
+ * 课程分类（硬编码，因为需要在组件内部使用useText）
  */
-const categories = [
-  { id: 'all', name: '全部课程' },
-  { id: 'math', name: '数学' },
-  { id: 'english', name: '英语' },
-  { id: 'politics', name: '政治' },
-  { id: 'professional', name: '专业课' },
+const categoriesConfig = [
+  { id: 'all', key: 'category.all' },
+  { id: 'math', key: 'category.math' },
+  { id: 'english', key: 'category.english' },
+  { id: 'politics', key: 'category.politics' },
+  { id: 'professional', key: 'category.professional' },
 ];
 
 /**
@@ -52,6 +52,22 @@ const CoursesPage = () => {
   
   // 响应式Hook
   const responsive = useResponsive({ enableDebug: false, cacheKey: 'courses-page' });
+  
+  // 获取页面文字内容
+  const pageTitle = useText('courses_title', 'courses');
+  const pageSubtitle = useText('courses_description', 'courses');
+  
+  // 获取分类文字内容
+  const categories = categoriesConfig.map(cat => ({
+    id: cat.id,
+    name: useText(cat.key, 'courses') || {
+      'all': '全部课程',
+      'math': '数学',
+      'english': '英语',
+      'politics': '政治',
+      'professional': '专业课'
+    }[cat.id] || cat.id
+  }));
   
   // 响应式值配置
   const gridColumns = useResponsiveValue({
@@ -192,10 +208,10 @@ const CoursesPage = () => {
                 "h-12 w-12 lg:h-14 lg:w-14"
               )} />
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 text-white">
-                课程中心
+                {pageTitle || "课程中心"}
               </h1>
               <p className="text-blue-100 max-w-2xl mx-auto text-base md:text-lg">
-                精选优质课程，助力考研成功
+                {pageSubtitle || "精选优质课程，助力考研成功"}
               </p>
             </div>
           </div>
@@ -366,6 +382,7 @@ const CoursesPage = () => {
                 <CourseCard 
                   key={course.id} 
                   course={course}
+                  categories={categories}
                 />
               ))}
             </div>
@@ -381,9 +398,10 @@ const CoursesPage = () => {
  */
 interface CourseCardProps {
   course: Course;
+  categories: Array<{ id: string; name: string }>;
 }
 
-const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
+const CourseCard: React.FC<CourseCardProps> = ({ course, categories }) => {
   // 响应式Hook
   const responsive = useResponsive({ enableDebug: false });
   

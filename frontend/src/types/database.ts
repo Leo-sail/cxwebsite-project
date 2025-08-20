@@ -14,48 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      about_carousel_images: {
-        Row: {
-          alt_text: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          display_order: number
-          id: string
-          image_url: string
-          is_active: boolean
-          title: string
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          alt_text?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          display_order?: number
-          id?: string
-          image_url: string
-          is_active?: boolean
-          title: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          alt_text?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          display_order?: number
-          id?: string
-          image_url?: string
-          is_active?: boolean
-          title?: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Relationships: []
-      }
+
       admin_users: {
         Row: {
           email: string
@@ -131,105 +90,35 @@ export type Database = {
         }
         Relationships: []
       }
-      component_instances: {
+      component_text_storage: {
         Row: {
-          component_name: string
-          component_type: string
+          area: string | null
+          content: string
           created_at: string | null
+          description: string | null
           id: string
-          is_active: boolean | null
-          layout_config: Json | null
-          page_id: string
-          parent_id: string | null
-          props: Json
-          sort_order: number | null
-          style_overrides: Json | null
-          styles: Json | null
+          key: string
           updated_at: string | null
         }
         Insert: {
-          component_name: string
-          component_type: string
+          area?: string | null
+          content: string
           created_at?: string | null
+          description?: string | null
           id?: string
-          is_active?: boolean | null
-          layout_config?: Json | null
-          page_id: string
-          parent_id?: string | null
-          props?: Json
-          sort_order?: number | null
-          style_overrides?: Json | null
-          styles?: Json | null
+          key: string
           updated_at?: string | null
         }
         Update: {
-          component_name?: string
-          component_type?: string
+          area?: string | null
+          content?: string
           created_at?: string | null
+          description?: string | null
           id?: string
-          is_active?: boolean | null
-          layout_config?: Json | null
-          page_id?: string
-          parent_id?: string | null
-          props?: Json
-          sort_order?: number | null
-          style_overrides?: Json | null
-          styles?: Json | null
+          key?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_component_instances_parent"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "component_instances"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      component_styles: {
-        Row: {
-          component_name: string
-          created_at: string | null
-          id: string
-          is_active: boolean | null
-          sort_order: number | null
-          style_data: Json
-          theme_id: string
-          updated_at: string | null
-          variant_name: string | null
-        }
-        Insert: {
-          component_name: string
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          sort_order?: number | null
-          style_data?: Json
-          theme_id: string
-          updated_at?: string | null
-          variant_name?: string | null
-        }
-        Update: {
-          component_name?: string
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          sort_order?: number | null
-          style_data?: Json
-          theme_id?: string
-          updated_at?: string | null
-          variant_name?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "component_styles_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme_configs"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       contact_info: {
         Row: {
@@ -336,42 +225,7 @@ export type Database = {
         }
         Relationships: []
       }
-      email_logs: {
-        Row: {
-          created_at: string | null
-          error_message: string | null
-          from_email: string
-          id: string
-          sent_at: string | null
-          status: string
-          subject: string
-          to_email: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          error_message?: string | null
-          from_email: string
-          id?: string
-          sent_at?: string | null
-          status: string
-          subject: string
-          to_email: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          error_message?: string | null
-          from_email?: string
-          id?: string
-          sent_at?: string | null
-          status?: string
-          subject?: string
-          to_email?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+
       media_files: {
         Row: {
           alt_text: string | null
@@ -474,104 +328,8 @@ export type Database = {
         }
         Relationships: []
       }
-      page_contents: {
-        Row: {
-          content: string | null
-          content_data: Json
-          content_key: string
-          content_type: string
-          created_at: string | null
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          page_id: string
-          position_data: Json | null
-          sort_order: number | null
-          style_data: Json | null
-          styles: Json | null
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          content?: string | null
-          content_data?: Json
-          content_key: string
-          content_type: string
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          page_id: string
-          position_data?: Json | null
-          sort_order?: number | null
-          style_data?: Json | null
-          styles?: Json | null
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string | null
-          content_data?: Json
-          content_key?: string
-          content_type?: string
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          page_id?: string
-          position_data?: Json | null
-          sort_order?: number | null
-          style_data?: Json | null
-          styles?: Json | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      page_styles: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_active: boolean | null
-          page_name: string
-          section_name: string | null
-          sort_order: number | null
-          style_data: Json
-          theme_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          page_name: string
-          section_name?: string | null
-          sort_order?: number | null
-          style_data?: Json
-          theme_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          page_name?: string
-          section_name?: string | null
-          sort_order?: number | null
-          style_data?: Json
-          theme_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "page_styles_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "theme_configs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+
+
       student_cases: {
         Row: {
           admitted_school: string | null
@@ -659,84 +417,8 @@ export type Database = {
         }
         Relationships: []
       }
-      theme_configs: {
-        Row: {
-          config_data: Json
-          created_at: string | null
-          description: string | null
-          id: string
-          is_active: boolean | null
-          theme_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          config_data?: Json
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          theme_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          config_data?: Json
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          theme_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      site_content: {
-        Row: {
-          id: string
-          content_key: string
-          content_type: string
-          title: string | null
-          content: string
-          description: string | null
-          page_location: string | null
-          component_type: string | null
-          display_order: number | null
-          is_active: boolean | null
-          metadata: Json | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          content_key: string
-          content_type: string
-          title?: string | null
-          content: string
-          description?: string | null
-          page_location?: string | null
-          component_type?: string | null
-          display_order?: number | null
-          is_active?: boolean | null
-          metadata?: Json | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          content_key?: string
-          content_type?: string
-          title?: string | null
-          content?: string
-          description?: string | null
-          page_location?: string | null
-          component_type?: string | null
-          display_order?: number | null
-          is_active?: boolean | null
-          metadata?: Json | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+
+
       ui_configs: {
         Row: {
           component_type: string
@@ -953,25 +635,7 @@ export type AdminUser = Database['public']['Tables']['admin_users']['Row']
 export type AdminUserInsert = Database['public']['Tables']['admin_users']['Insert']
 export type AdminUserUpdate = Database['public']['Tables']['admin_users']['Update']
 
-export type ThemeConfig = Database['public']['Tables']['theme_configs']['Row']
-export type ThemeConfigInsert = Database['public']['Tables']['theme_configs']['Insert']
-export type ThemeConfigUpdate = Database['public']['Tables']['theme_configs']['Update']
 
-export type PageStyle = Database['public']['Tables']['page_styles']['Row']
-export type PageStyleInsert = Database['public']['Tables']['page_styles']['Insert']
-export type PageStyleUpdate = Database['public']['Tables']['page_styles']['Update']
-
-export type ComponentStyle = Database['public']['Tables']['component_styles']['Row']
-export type ComponentStyleInsert = Database['public']['Tables']['component_styles']['Insert']
-export type ComponentStyleUpdate = Database['public']['Tables']['component_styles']['Update']
-
-export type PageContent = Database['public']['Tables']['page_contents']['Row']
-export type PageContentInsert = Database['public']['Tables']['page_contents']['Insert']
-export type PageContentUpdate = Database['public']['Tables']['page_contents']['Update']
-
-export type ComponentInstance = Database['public']['Tables']['component_instances']['Row']
-export type ComponentInstanceInsert = Database['public']['Tables']['component_instances']['Insert']
-export type ComponentInstanceUpdate = Database['public']['Tables']['component_instances']['Update']
 
 export type ContactSubmission = Database['public']['Tables']['contact_submissions']['Row']
 export type ContactSubmissionInsert = Database['public']['Tables']['contact_submissions']['Insert']
@@ -981,14 +645,12 @@ export type ContactInfo = Database['public']['Tables']['contact_info']['Row']
 export type ContactInfoInsert = Database['public']['Tables']['contact_info']['Insert']
 export type ContactInfoUpdate = Database['public']['Tables']['contact_info']['Update']
 
-export type EmailLog = Database['public']['Tables']['email_logs']['Row']
-export type EmailLogInsert = Database['public']['Tables']['email_logs']['Insert']
-export type EmailLogUpdate = Database['public']['Tables']['email_logs']['Update']
+
 
 export type UIConfig = Database['public']['Tables']['ui_configs']['Row']
 export type UIConfigInsert = Database['public']['Tables']['ui_configs']['Insert']
 export type UIConfigUpdate = Database['public']['Tables']['ui_configs']['Update']
 
-export type SiteContent = Database['public']['Tables']['site_content']['Row']
-export type SiteContentInsert = Database['public']['Tables']['site_content']['Insert']
-export type SiteContentUpdate = Database['public']['Tables']['site_content']['Update']
+export type ComponentTextStorage = Database['public']['Tables']['component_text_storage']['Row']
+export type ComponentTextStorageInsert = Database['public']['Tables']['component_text_storage']['Insert']
+export type ComponentTextStorageUpdate = Database['public']['Tables']['component_text_storage']['Update']

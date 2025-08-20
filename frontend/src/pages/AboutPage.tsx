@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { SEO, AnimatedContainer } from '../components';
+import { useText } from '../hooks/useText';
 import {
   AcademicCapIcon,
   ChartBarIcon,
@@ -18,12 +19,123 @@ import {
  * 关于我们页面组件
  */
 const AboutPage: React.FC = () => {
+  // SEO相关文本
+  const seoTitle = useText('about_seo_title', 'about');
+  const seoDescription = useText('about_seo_description', 'about');
+  const seoKeywords = useText('about_seo_keywords', 'about');
+  
+  // Hero Section文本
+  const heroTitle = useText('about_hero_title', 'about');
+  const heroSubtitle = useText('about_hero_subtitle', 'about');
+  const heroDescription = useText('about_hero_description', 'about');
+  const heroTag1 = useText('about_hero_tag_1', 'about');
+  const heroTag2 = useText('about_hero_tag_2', 'about');
+  const heroTag3 = useText('about_hero_tag_3', 'about');
+  
+  // 机构介绍文本
+  const missionTitle = useText('about_mission_title', 'about');
+  const missionSubtitle = useText('about_mission_subtitle', 'about');
+  const institutionTitle = useText('about_institution_title', 'about');
+  const institutionDesc = useText('about_institution_desc', 'about');
+  const personalizedTitle = useText('about_personalized_title', 'about');
+  const personalizedDesc = useText('about_personalized_desc', 'about');
+  const achievementTitle = useText('about_achievement_title', 'about');
+  const achievementDesc = useText('about_achievement_desc', 'about');
+  const successStudents = useText('about_success_students', 'about');
+  const successStudentsLabel = useText('about_success_students_label', 'about');
+  
+  // 核心优势文本
+  const advantagesTitle = useText('about_advantages_title', 'about');
+  const advantagesDescription = useText('about_advantages_description', 'about');
+  const advantage1Title = useText('about_advantage_1_title', 'about');
+  const advantage1Desc = useText('about_advantage_1_desc', 'about');
+  const advantage2Title = useText('about_advantage_2_title', 'about');
+  const advantage2Desc = useText('about_advantage_2_desc', 'about');
+  const advantage3Title = useText('about_advantage_3_title', 'about');
+  const advantage3Desc = useText('about_advantage_3_desc', 'about');
+  const advantage4Title = useText('about_advantage_4_title', 'about');
+  const advantage4Desc = useText('about_advantage_4_desc', 'about');
+  
+  // 发展历程文本
+  const historyTitle = useText('about_history_title', 'about');
+  const historyDescription = useText('about_history_description', 'about');
+  const milestone1Title = useText('about_milestone_1_title', 'about');
+  const milestone1Desc = useText('about_milestone_1_desc', 'about');
+  const milestone2Title = useText('about_milestone_2_title', 'about');
+  const milestone2Desc = useText('about_milestone_2_desc', 'about');
+  const milestone3Title = useText('about_milestone_3_title', 'about');
+  const milestone3Desc = useText('about_milestone_3_desc', 'about');
+  const milestone4Title = useText('about_milestone_4_title', 'about');
+  const milestone4Desc = useText('about_milestone_4_desc', 'about');
+  const milestone5Title = useText('about_milestone_5_title', 'about');
+  const milestone5Desc = useText('about_milestone_5_desc', 'about');
+  
+  // 团队介绍文本
+  const teamTitle = useText('about_team_title', 'about');
+  const teamDescription = useText('about_team_description', 'about');
+  const member1Name = useText('about_member_1_name', 'about');
+  const member1Position = useText('about_member_1_position', 'about');
+  const member1Education = useText('about_member_1_education', 'about');
+  const member1Experience = useText('about_member_1_experience', 'about');
+  const member2Name = useText('about_member_2_name', 'about');
+  const member2Position = useText('about_member_2_position', 'about');
+  const member2Education = useText('about_member_2_education', 'about');
+  const member2Experience = useText('about_member_2_experience', 'about');
+  const member3Name = useText('about_member_3_name', 'about');
+  const member3Position = useText('about_member_3_position', 'about');
+  const member3Education = useText('about_member_3_education', 'about');
+  const member3Experience = useText('about_member_3_experience', 'about');
+  
+  // CTA部分文本
+  const ctaTitle = useText('about_cta_title', 'about');
+  const ctaDescription = useText('about_cta_description', 'about');
+  const ctaConsult = useText('about_cta_consult', 'about');
+  const ctaCourses = useText('about_cta_courses', 'about');
+  
+  // 联系信息文本
+  const contactPageTitle = useText('contact_page_title', 'contact');
+  const contactPageDescription = useText('contact_page_description', 'contact');
+  const consultationTitle = useText('consultation_title', 'contact');
+  const consultationPhone = useText('consultation_phone', 'contact');
+  const consultationDesc = useText('consultation_desc', 'contact');
+  const addressTitle = useText('address_title', 'contact');
+  const addressText = useText('address_text', 'contact');
+  const addressDesc = useText('address_desc', 'contact');
+  const wechatTitle = useText('wechat_title', 'contact');
+  const wechatId = useText('wechat_id', 'contact');
+  const wechatDesc = useText('wechat_desc', 'contact');
+  const workTimeTitle = useText('work_time_title', 'contact');
+  const workTimeText = useText('work_time_text', 'contact');
+  const workTimeDesc = useText('work_time_desc', 'contact');
+  const formTitle = useText('form_title', 'contact');
+  const formDescription = useText('form_description', 'contact');
+  const nameLabel = useText('name_label', 'contact');
+  const namePlaceholder = useText('name_placeholder', 'contact');
+  const phoneLabel = useText('phone_label', 'contact');
+  const phonePlaceholder = useText('phone_placeholder', 'contact');
+  const courseLabel = useText('course_label', 'contact');
+  const coursePlaceholder = useText('course_placeholder', 'contact');
+  const messageLabel = useText('message_label', 'contact');
+  const messagePlaceholder = useText('message_placeholder', 'contact');
+  const submitButtonText = useText('submit_button_text', 'contact');
+  const mapDescription = useText('map_description', 'contact');
+  const mapLoadingText = useText('map_loading_text', 'contact');
+  const mapAddressText = useText('map_address_text', 'contact');
+  const mapBusinessHours = useText('map_business_hours', 'contact');
+  const mapPhoneText = useText('map_phone_text', 'contact');
+  const mapDetailAddressLabel = useText('map_detail_address_label', 'contact');
+  const mapDetailAddressText = useText('map_detail_address_text', 'contact');
+  const mapBusinessHoursLabel = useText('map_business_hours_label', 'contact');
+  const mapBusinessHoursText = useText('map_business_hours_text', 'contact');
+  const mapContactPhoneLabel = useText('map_contact_phone_label', 'contact');
+  const mapContactPhoneText = useText('map_contact_phone_text', 'contact');
+  
   return (
     <>
       <SEO
-        title="关于我们 - 考研教育平台"
-        description="了解我们的教育理念、师资团队和发展历程。专业的考研培训机构，助您实现名校梦想。"
-        keywords="关于我们,教育理念,师资团队,考研培训机构,发展历程"
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
       />
 
       <div className="min-h-screen bg-gray-50">
@@ -43,26 +155,26 @@ const AboutPage: React.FC = () => {
                   </div>
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white">
-                  关于我们
+                  {heroTitle}
                   <span className="block text-xl md:text-2xl lg:text-3xl font-normal mt-3 text-white/90">
-                    About Us
+                    {heroSubtitle}
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-6 leading-relaxed">
-                  专业的考研教育平台，致力于为每一位学员提供最优质的教学服务
+                  {heroDescription}
                 </p>
                 <div className="flex flex-wrap justify-center gap-6 text-white/80">
                   <div className="flex items-center gap-2">
                     <TrophyIcon className="w-5 h-5" />
-                    <span>专业教育</span>
+                    <span>{heroTag1}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <StarIcon className="w-5 h-5" />
-                    <span>品质保证</span>
+                    <span>{heroTag2}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <HeartIcon className="w-5 h-5" />
-                    <span>用心服务</span>
+                    <span>{heroTag3}</span>
                   </div>
                 </div>
               </AnimatedContainer>
@@ -88,34 +200,31 @@ const AboutPage: React.FC = () => {
                         <BookOpenIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-4xl font-bold text-gray-900">我们的使命</h2>
-                        <p className="text-blue-600 font-medium">Our Mission</p>
+                        <h2 className="text-4xl font-bold text-gray-900">{missionTitle}</h2>
+                        <p className="text-blue-600 font-medium">{missionSubtitle}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div className="space-y-6 text-gray-600 leading-relaxed text-lg">
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl border-l-4 border-blue-500">
-                      <p className="font-medium text-gray-800 mb-2">专业教育机构</p>
+                      <p className="font-medium text-gray-800 mb-2">{institutionTitle}</p>
                       <p>
-                        我们是一家专注于考研教育的专业培训机构，成立于2015年。多年来，我们始终坚持"以学员为中心"的教育理念，
-                        致力于为广大考研学子提供最专业、最有效的备考指导。
+                        {institutionDesc}
                       </p>
                     </div>
                     
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl border-l-4 border-purple-500">
-                      <p className="font-medium text-gray-800 mb-2">个性化服务</p>
+                      <p className="font-medium text-gray-800 mb-2">{personalizedTitle}</p>
                       <p>
-                        我们深知每一位学员的梦想都值得被认真对待，因此我们不断完善教学体系，优化课程内容，
-                        确保每一位学员都能在这里找到适合自己的学习方法，实现自己的考研目标。
+                        {personalizedDesc}
                       </p>
                     </div>
                     
                     <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-2xl border-l-4 border-green-500">
-                      <p className="font-medium text-gray-800 mb-2">卓越成果</p>
+                      <p className="font-medium text-gray-800 mb-2">{achievementTitle}</p>
                       <p>
-                        截至目前，我们已经帮助超过10000名学员成功考入理想院校，其中985、211院校录取率达到85%以上。
-                        这些成绩的取得，离不开我们专业的师资团队和科学的教学方法。
+                        {achievementDesc}
                       </p>
                     </div>
                   </div>
@@ -138,8 +247,8 @@ const AboutPage: React.FC = () => {
                   {/* 成就卡片 */}
                   <div className="absolute -bottom-8 -right-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-2xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
                     <div className="text-center">
-                      <div className="text-4xl font-bold mb-2">10000+</div>
-                      <div className="text-blue-100 font-medium">成功学员</div>
+                      <div className="text-4xl font-bold mb-2">{successStudents}</div>
+                      <div className="text-blue-100 font-medium">{successStudentsLabel}</div>
                       <div className="flex justify-center mt-3">
                         <TrophyIcon className="w-6 h-6 text-yellow-300" />
                       </div>
@@ -168,9 +277,9 @@ const AboutPage: React.FC = () => {
                     <StarIcon className="w-8 h-8 text-white" />
                   </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">核心优势</h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{advantagesTitle}</h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  我们的专业优势让每一位学员都能获得最优质的教学体验
+                  {advantagesDescription}
                 </p>
               </div>
 
@@ -178,29 +287,29 @@ const AboutPage: React.FC = () => {
                 {[
                   {
                     icon: <AcademicCapIcon className="h-8 w-8" />,
-                    title: '专业师资',
-                    description: '985/211名校毕业，平均教学经验8年以上',
+                    title: advantage1Title,
+                    description: advantage1Desc,
                     color: 'from-blue-500 to-blue-600',
                     bgColor: 'from-blue-50 to-blue-100'
                   },
                   {
                     icon: <ChartBarIcon className="h-8 w-8" />,
-                    title: '科学体系',
-                    description: '完整的课程体系，从基础到冲刺全覆盖',
+                    title: advantage2Title,
+                    description: advantage2Desc,
                     color: 'from-purple-500 to-purple-600',
                     bgColor: 'from-purple-50 to-purple-100'
                   },
                   {
                     icon: <UserGroupIcon className="h-8 w-8" />,
-                    title: '个性化辅导',
-                    description: '一对一答疑，针对性解决学习问题',
+                    title: advantage3Title,
+                    description: advantage3Desc,
                     color: 'from-green-500 to-green-600',
                     bgColor: 'from-green-50 to-green-100'
                   },
                   {
                     icon: <CheckCircleIcon className="h-8 w-8" />,
-                    title: '高通过率',
-                    description: '985/211院校录取率85%，远超行业平均水平',
+                    title: advantage4Title,
+                    description: advantage4Desc,
                     color: 'from-orange-500 to-orange-600',
                     bgColor: 'from-orange-50 to-orange-100'
                   }
@@ -237,9 +346,9 @@ const AboutPage: React.FC = () => {
                     <TrophyIcon className="w-8 h-8 text-white" />
                   </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">发展历程</h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{historyTitle}</h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  从创立至今，我们始终专注于考研教育，不断创新发展
+                  {historyDescription}
                 </p>
               </div>
 
@@ -251,36 +360,36 @@ const AboutPage: React.FC = () => {
                   {[
                     {
                       year: '2015',
-                      title: '机构成立',
-                      description: '在北京成立，专注考研教育培训',
+                      title: milestone1Title,
+                      description: milestone1Desc,
                       color: 'from-blue-500 to-blue-600',
                       bgColor: 'from-blue-50 to-blue-100'
                     },
                     {
                       year: '2017',
-                      title: '规模扩大',
-                      description: '师资团队扩展至50人，学员突破1000人',
+                      title: milestone2Title,
+                      description: milestone2Desc,
                       color: 'from-purple-500 to-purple-600',
                       bgColor: 'from-purple-50 to-purple-100'
                     },
                     {
                       year: '2019',
-                      title: '在线教育',
-                      description: '推出在线教育平台，服务全国学员',
+                      title: milestone3Title,
+                      description: milestone3Desc,
                       color: 'from-green-500 to-green-600',
                       bgColor: 'from-green-50 to-green-100'
                     },
                     {
                       year: '2021',
-                      title: '品牌升级',
-                      description: '全面升级教学体系，录取率创新高',
+                      title: milestone4Title,
+                      description: milestone4Desc,
                       color: 'from-orange-500 to-orange-600',
                       bgColor: 'from-orange-50 to-orange-100'
                     },
                     {
                       year: '2023',
-                      title: '持续发展',
-                      description: '累计服务学员超过10000人，继续领跑行业',
+                      title: milestone5Title,
+                      description: milestone5Desc,
                       color: 'from-pink-500 to-pink-600',
                       bgColor: 'from-pink-50 to-pink-100'
                     }
@@ -328,33 +437,33 @@ const AboutPage: React.FC = () => {
                     <UserGroupIcon className="w-8 h-8 text-white" />
                   </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">核心团队</h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{teamTitle}</h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  我们拥有一支专业、敬业的教学团队，为您的考研之路保驾护航
+                  {teamDescription}
                 </p>
               </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  name: '张教授',
-                  position: '数学教学总监',
-                  education: '清华大学数学系博士',
-                  experience: '15年考研数学教学经验',
+                  name: member1Name,
+                  position: member1Position,
+                  education: member1Education,
+                  experience: member1Experience,
                   avatar: '/images/team/member-1.svg'
                 },
                 {
-                  name: '李老师',
-                  position: '英语教学主管',
-                  education: '北京外国语大学硕士',
-                  experience: '12年考研英语教学经验',
+                  name: member2Name,
+                  position: member2Position,
+                  education: member2Education,
+                  experience: member2Experience,
                   avatar: '/images/team/member-2.svg'
                 },
                 {
-                  name: '王老师',
-                  position: '政治教学专家',
-                  education: '中国人民大学博士',
-                  experience: '10年考研政治教学经验',
+                  name: member3Name,
+                  position: member3Position,
+                  education: member3Education,
+                  experience: member3Experience,
                   avatar: '/images/team/member-3.svg'
                 }
               ].map((member, index) => (
@@ -409,6 +518,169 @@ const AboutPage: React.FC = () => {
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full opacity-30 blur-2xl"></div>
         </section>
 
+        {/* 联系信息区域 */}
+        <section className="py-20 bg-white relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedContainer>
+              {/* 标题部分 */}
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  {contactPageTitle}
+                </h2>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  {contactPageDescription}
+                </p>
+              </div>
+
+              {/* 联系方式网格 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                {/* 咨询热线 */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{consultationTitle}</h3>
+                  <p className="text-2xl font-bold text-blue-600 mb-2">{consultationPhone}</p>
+                  <p className="text-gray-600">{consultationDesc}</p>
+                </div>
+
+                {/* 地址信息 */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{addressTitle}</h3>
+                  <p className="text-lg font-semibold text-green-600 mb-2">{addressText}</p>
+                  <p className="text-gray-600">{addressDesc}</p>
+                </div>
+
+                {/* 微信咨询 */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{wechatTitle}</h3>
+                  <p className="text-lg font-semibold text-purple-600 mb-2">{wechatId}</p>
+                  <p className="text-gray-600">{wechatDesc}</p>
+                </div>
+              </div>
+
+              {/* 工作时间 */}
+              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-8 text-center mb-16">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">{workTimeTitle}</h3>
+                <p className="text-xl font-semibold text-orange-600 mb-2">{workTimeText}</p>
+                <p className="text-gray-600">{workTimeDesc}</p>
+              </div>
+
+              {/* 咨询表单 */}
+              <div className="bg-gray-50 rounded-3xl p-8 lg:p-12">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-4">{formTitle}</h3>
+                  <p className="text-lg text-gray-600">{formDescription}</p>
+                </div>
+                
+                <form className="max-w-2xl mx-auto space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{nameLabel}</label>
+                      <input
+                        type="text"
+                        placeholder={namePlaceholder}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{phoneLabel}</label>
+                      <input
+                        type="tel"
+                        placeholder={phonePlaceholder}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{courseLabel}</label>
+                    <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                      <option value="">{coursePlaceholder}</option>
+                      <option value="ielts">雅思课程</option>
+                      <option value="toefl">托福课程</option>
+                      <option value="sat">SAT课程</option>
+                      <option value="gre">GRE课程</option>
+                      <option value="gmat">GMAT课程</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{messageLabel}</label>
+                    <textarea
+                      rows={4}
+                      placeholder={messagePlaceholder}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                    ></textarea>
+                  </div>
+                  
+                  <div className="text-center">
+                    <button
+                      type="submit"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                    >
+                      {submitButtonText}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* 地图区域 */}
+              <div className="mt-16">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-4">位置导航</h3>
+                  <p className="text-lg text-gray-600">{mapDescription}</p>
+                </div>
+                
+                <div className="bg-gray-100 rounded-2xl p-8 text-center">
+                  <div className="bg-white rounded-lg p-6 shadow-sm">
+                    <p className="text-gray-500 mb-4">{mapLoadingText}</p>
+                    
+                    {/* 地图信息卡片 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                      <div className="text-center">
+                        <h4 className="font-semibold text-gray-900 mb-2">{mapDetailAddressLabel}</h4>
+                        <p className="text-gray-600">{mapDetailAddressText}</p>
+                      </div>
+                      <div className="text-center">
+                        <h4 className="font-semibold text-gray-900 mb-2">{mapBusinessHoursLabel}</h4>
+                        <p className="text-gray-600">{mapBusinessHoursText}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          <span>周六至周日</span> • <span>节假日</span>
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <h4 className="font-semibold text-gray-900 mb-2">{mapContactPhoneLabel}</h4>
+                        <p className="text-blue-600 font-semibold">{mapContactPhoneText}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          <span>400-123-4567</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AnimatedContainer>
+          </div>
+          
+          {/* 背景装饰 */}
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full opacity-30 blur-2xl"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full opacity-30 blur-2xl"></div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -419,9 +691,9 @@ const AboutPage: React.FC = () => {
                     <HeartIcon className="w-10 h-10 text-white" />
                   </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">加入我们，实现梦想</h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">{ctaTitle}</h2>
                 <p className="text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-                  选择我们，就是选择专业、选择成功。让我们一起为您的考研之路保驾护航
+                  {ctaDescription}
                 </p>
               </div>
               
@@ -429,13 +701,13 @@ const AboutPage: React.FC = () => {
                 <button className="group bg-white text-blue-600 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl">
                   <span className="flex items-center justify-center">
                     <BookOpenIcon className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                    免费咨询
+                    {ctaConsult}
                   </span>
                 </button>
                 <button className="group border-2 border-white text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl">
                   <span className="flex items-center justify-center">
                     <AcademicCapIcon className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                    查看课程
+                    {ctaCourses}
                   </span>
                 </button>
               </div>

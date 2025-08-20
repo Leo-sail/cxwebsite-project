@@ -216,7 +216,7 @@ const Media: React.FC = () => {
       {filteredMediaFiles.map((file) => (
         <div key={file.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
           <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-t-lg bg-gray-200">
-            {file.file_type === 'image' && file.thumbnail_url ? (
+            {file.file_type === 'image' && file.thumbnail_url && file.thumbnail_url.trim() !== '' ? (
               <img
                 src={file.thumbnail_url}
                 alt={file.alt_text}

@@ -260,7 +260,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
             <div className="gallery-grid">
               {(props.images || []).map((image: any, index: number) => (
                 <div key={index} className="gallery-item">
-                  <img src={image.src || 'https://via.placeholder.com/400x300/f3f4f6/9ca3af?text=暂无图片'} alt={image.alt || ''} />
+                  <img src={(image.src && image.src.trim() !== '') ? image.src : 'https://via.placeholder.com/400x300/f3f4f6/9ca3af?text=暂无图片'} alt={image.alt || ''} />
                   {image.caption && (
                     <div className="gallery-caption">{image.caption}</div>
                   )}
@@ -357,7 +357,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
               >
                 {(props.slides || []).map((slide: any, index: number) => (
                   <div key={index} className="carousel-slide">
-                    {slide.image && <img src={slide.image || 'https://via.placeholder.com/400x300/f3f4f6/9ca3af?text=暂无图片'} alt={slide.alt || ''} />}
+                    {(slide.image && slide.image.trim() !== '') && <img src={slide.image} alt={slide.alt || ''} />}
                     {slide.content && <div className="slide-content">{slide.content}</div>}
                   </div>
                 ))}
@@ -454,8 +454,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
       case ComponentType.AVATAR:
         return (
           <div className={`dynamic-avatar ${props.size || 'medium'} ${props.className || ''}`}>
-            {props.image ? (
-              <img src={props.image || 'https://via.placeholder.com/100x100/f3f4f6/9ca3af?text=头像'} alt={props.alt || 'Avatar'} />
+            {(props.image && props.image.trim() !== '') ? (
+              <img src={props.image} alt={props.alt || 'Avatar'} />
             ) : (
               <span className="avatar-initials">
                 {props.initials || props.name?.charAt(0) || 'U'}

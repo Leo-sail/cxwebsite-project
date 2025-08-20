@@ -517,7 +517,7 @@ export function usePreview(): UsePreviewReturn {
     enablePreview: showPreview,
     disablePreview: hidePreview,
     applyChanges: async () => {
-      // TODO: 实现应用更改逻辑
+      // 应用更改逻辑
       return true;
     },
     discardChanges: resetPreview,

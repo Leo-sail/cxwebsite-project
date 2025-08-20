@@ -214,7 +214,7 @@ export const ImageRenderer: React.FC<ImageRendererProps> = ({
     >
       <img
         ref={imageRef}
-        src={data.src || 'https://via.placeholder.com/400x300/f3f4f6/9ca3af?text=暂无图片'}
+        src={(data.src && data.src.trim() !== '') ? data.src : 'https://via.placeholder.com/400x300/f3f4f6/9ca3af?text=暂无图片'}
         alt={data.alt || data.title || '图片'}
         title={data.title}
         style={getImageStyle()}

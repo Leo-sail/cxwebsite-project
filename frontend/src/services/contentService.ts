@@ -1,418 +1,401 @@
-/**
- * 内容管理服务
- * 提供页面内容和组件实例的数据操作功能
- */
 import { supabase } from '../lib/supabase';
-import type { Database } from '../types/database';
-
-type PageContent = Database['public']['Tables']['page_contents']['Row'];
-type PageContentInsert = Database['public']['Tables']['page_contents']['Insert'];
-type PageContentUpdate = Database['public']['Tables']['page_contents']['Update'];
-
-type ComponentInstance = Database['public']['Tables']['component_instances']['Row'];
-type ComponentInstanceInsert = Database['public']['Tables']['component_instances']['Insert'];
-type ComponentInstanceUpdate = Database['public']['Tables']['component_instances']['Update'];
+import type { Article, UIConfig } from '../types/database';
+import type { ExtendedArticle, ExtendedUIConfig } from '../types/content';
 
 /**
- * 页面内容管理服务
+ * 内容服务类
+ * 提供文章和UI配置的基本CRUD操作
  */
 export class ContentService {
   /**
-   * 获取页面的所有内容
+   * 获取所有文章
    */
-  static async getPageContents(pageId: string): Promise<PageContent[]> {
-    const { data, error } = await supabase
-      .from('page_contents')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  static async getArticles(): Promise<ExtendedArticle[]> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      throw new Error(`获取页面内容失败: ${error.message}`);
+      if (error) throw error;
+
+      return data.map(article => ({
+         ...article,
+         tags: Array.isArray(article.tags) ? article.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(article.content || '')
+       }));
+    } catch (error) {
+      console.error('获取文章失败:', error);
+      throw error;
     }
-
-    return data || [];
   }
 
   /**
-   * 根据内容键获取特定内容
+   * 根据ID获取文章
    */
-  static async getContentByKey(pageId: string, contentKey: string): Promise<PageContent | null> {
-    const { data, error } = await supabase
-      .from('page_contents')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('content_key', contentKey)
-      .eq('is_active', true)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      throw new Error(`获取内容失败: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * 创建新的页面内容
-   */
-  static async createContent(contentData: PageContentInsert): Promise<PageContent> {
-    const { data, error } = await supabase
-      .from('page_contents')
-      .insert(contentData)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`创建内容失败: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * 更新页面内容
-   */
-  static async updateContent(id: string, contentData: PageContentUpdate): Promise<PageContent> {
-    const { data, error } = await supabase
-      .from('page_contents')
-      .update({ ...contentData, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`更新内容失败: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * 批量更新内容顺序
-   */
-  static async updateContentOrder(contents: Array<{ id: string; sort_order: number }>): Promise<void> {
-    const updates = contents.map(({ id, sort_order }) => 
-      supabase
-        .from('page_contents')
-        .update({ sort_order, updated_at: new Date().toISOString() })
+  static async getArticleById(id: string): Promise<ExtendedArticle | null> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
         .eq('id', id)
-    );
+        .single();
 
-    const results = await Promise.all(updates);
-    const errors = results.filter(result => result.error);
+      if (error) throw error;
+      if (!data) return null;
 
-    if (errors.length > 0) {
-      throw new Error(`批量更新排序失败: ${errors[0].error?.message}`);
+      return {
+         ...data,
+         tags: Array.isArray(data.tags) ? data.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(data.content || '')
+       };
+    } catch (error) {
+      console.error('获取文章失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 删除页面内容（软删除）
+   * 根据slug获取文章
    */
-  static async deleteContent(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('page_contents')
-      .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq('id', id);
+  static async getArticleBySlug(slug: string): Promise<ExtendedArticle | null> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .single();
 
-    if (error) {
-      throw new Error(`删除内容失败: ${error.message}`);
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+         ...data,
+         tags: Array.isArray(data.tags) ? data.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(data.content || '')
+       };
+    } catch (error) {
+      console.error('获取文章失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 根据内容类型获取内容
+   * 创建文章
    */
-  static async getContentsByType(pageId: string, contentType: string): Promise<PageContent[]> {
-    const { data, error } = await supabase
-      .from('page_contents')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('content_type', contentType)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  static async createArticle(article: Omit<Article, 'id' | 'created_at' | 'updated_at'>): Promise<ExtendedArticle> {
+     try {
+       const { data, error } = await supabase
+         .from('articles')
+         .insert({
+           ...article,
+           created_at: new Date().toISOString(),
+           updated_at: new Date().toISOString()
+         })
+         .select()
+         .single();
 
-    if (error) {
-      throw new Error(`获取${contentType}类型内容失败: ${error.message}`);
+      if (error) throw error;
+
+      return {
+         ...data,
+         tags: Array.isArray(data.tags) ? data.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(data.content || '')
+       };
+    } catch (error) {
+      console.error('创建文章失败:', error);
+      throw error;
     }
-
-    return data || [];
-  }
-}
-
-/**
- * 组件实例管理服务
- */
-export class ComponentInstanceService {
-  /**
-   * 获取页面的所有组件实例
-   */
-  static async getPageComponents(pageId: string): Promise<ComponentInstance[]> {
-    const { data, error } = await supabase
-      .from('component_instances')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
-
-    if (error) {
-      throw new Error(`获取页面组件失败: ${error.message}`);
-    }
-
-    return data || [];
   }
 
   /**
-   * 获取嵌套组件结构
+   * 更新文章
    */
-  static async getComponentTree(pageId: string): Promise<ComponentInstance[]> {
-    const { data, error } = await supabase
-      .from('component_instances')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
-
-    if (error) {
-      throw new Error(`获取组件树失败: ${error.message}`);
-    }
-
-    // 构建树形结构
-    const components = data || [];
-    const componentMap = new Map(components.map(comp => [comp.id, { ...comp, children: [] as ComponentInstance[] }]));
-    const rootComponents: ComponentInstance[] = [];
-
-    components.forEach(component => {
-      if (component.parent_id) {
-        const parent = componentMap.get(component.parent_id);
-        if (parent) {
-          (parent as any).children.push(componentMap.get(component.id));
-        }
-      } else {
-        rootComponents.push(componentMap.get(component.id)!);
-      }
-    });
-
-    return rootComponents;
-  }
-
-  /**
-   * 创建新的组件实例
-   */
-  static async createComponent(componentData: ComponentInstanceInsert): Promise<ComponentInstance> {
-    const { data, error } = await supabase
-      .from('component_instances')
-      .insert(componentData)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`创建组件失败: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * 更新组件实例
-   */
-  static async updateComponent(id: string, componentData: ComponentInstanceUpdate): Promise<ComponentInstance> {
-    const { data, error } = await supabase
-      .from('component_instances')
-      .update({ ...componentData, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`更新组件失败: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  /**
-   * 批量更新组件顺序
-   */
-  static async updateComponentOrder(components: Array<{ id: string; sort_order: number; parent_id?: string }>): Promise<void> {
-    const updates = components.map(({ id, sort_order, parent_id }) => 
-      supabase
-        .from('component_instances')
-        .update({ 
-          sort_order, 
-          parent_id: parent_id || null,
-          updated_at: new Date().toISOString() 
+  static async updateArticle(id: string, updates: Partial<Article>): Promise<ExtendedArticle> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
         })
         .eq('id', id)
-    );
+        .select()
+        .single();
 
-    const results = await Promise.all(updates);
-    const errors = results.filter(result => result.error);
+      if (error) throw error;
 
-    if (errors.length > 0) {
-      throw new Error(`批量更新组件排序失败: ${errors[0].error?.message}`);
+      return {
+         ...data,
+         tags: Array.isArray(data.tags) ? data.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(data.content || '')
+       };
+    } catch (error) {
+      console.error('更新文章失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 删除组件实例（软删除）
+   * 删除文章
    */
-  static async deleteComponent(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('component_instances')
-      .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq('id', id);
+  static async deleteArticle(id: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
-      throw new Error(`删除组件失败: ${error.message}`);
+      if (error) throw error;
+    } catch (error) {
+      console.error('删除文章失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 根据组件类型获取组件实例
+   * 获取UI配置
    */
-  static async getComponentsByType(pageId: string, componentType: string): Promise<ComponentInstance[]> {
-    const { data, error } = await supabase
-      .from('component_instances')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('component_type', componentType)
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  static async getUIConfigs(configType?: string): Promise<ExtendedUIConfig[]> {
+    try {
+      let query = supabase
+        .from('ui_configs')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      throw new Error(`获取${componentType}类型组件失败: ${error.message}`);
+      if (configType) {
+        query = query.eq('config_type', configType);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data.map(config => ({
+         ...config
+       })) as ExtendedUIConfig[];
+    } catch (error) {
+      console.error('获取UI配置失败:', error);
+      throw error;
     }
-
-    return data || [];
   }
 
   /**
-   * 复制组件实例
+   * 根据ID获取UI配置
    */
-  static async duplicateComponent(id: string, newPageId?: string): Promise<ComponentInstance> {
-    // 获取原组件数据
-    const { data: originalComponent, error: fetchError } = await supabase
-      .from('component_instances')
-      .select('*')
-      .eq('id', id)
-      .single();
+  static async getUIConfigById(id: string): Promise<ExtendedUIConfig | null> {
+    try {
+      const { data, error } = await supabase
+        .from('ui_configs')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (fetchError) {
-      throw new Error(`获取原组件失败: ${fetchError.message}`);
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+         ...data
+       } as ExtendedUIConfig;
+    } catch (error) {
+      console.error('获取UI配置失败:', error);
+      throw error;
     }
+  }
 
-    // 创建副本
-    const duplicateData: ComponentInstanceInsert = {
-      page_id: newPageId || originalComponent.page_id,
-      component_type: originalComponent.component_type,
-      component_name: `${originalComponent.component_name}_copy`,
-      props: originalComponent.props,
-      layout_config: originalComponent.layout_config,
-      style_overrides: originalComponent.style_overrides,
-      parent_id: originalComponent.parent_id,
-      sort_order: (originalComponent.sort_order || 0) + 1
-    };
+  /**
+   * 创建UI配置
+   */
+  static async createUIConfig(config: Omit<UIConfig, 'id' | 'created_at' | 'updated_at'>): Promise<ExtendedUIConfig> {
+     try {
+       const { data, error } = await supabase
+         .from('ui_configs')
+         .insert({
+           ...config,
+           created_at: new Date().toISOString(),
+           updated_at: new Date().toISOString()
+         })
+         .select()
+         .single();
 
-    return this.createComponent(duplicateData);
+      if (error) throw error;
+
+      return {
+         ...data
+       } as ExtendedUIConfig;
+    } catch (error) {
+      console.error('创建UI配置失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新UI配置
+   */
+  static async updateUIConfig(id: string, updates: Partial<UIConfig>): Promise<ExtendedUIConfig> {
+    try {
+      const { data, error } = await supabase
+        .from('ui_configs')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        ...data
+      } as ExtendedUIConfig;
+    } catch (error) {
+      console.error('更新UI配置失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除UI配置
+   */
+  static async deleteUIConfig(id: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('ui_configs')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('删除UI配置失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 搜索文章
+   */
+  static async searchArticles(query: string): Promise<ExtendedArticle[]> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('is_active', true)
+        .or(`title.ilike.%${query}%,content.ilike.%${query}%,summary.ilike.%${query}%`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(article => ({
+         ...article,
+         tags: Array.isArray(article.tags) ? article.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(article.content || '')
+       }));
+    } catch (error) {
+      console.error('搜索文章失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 根据分类获取文章
+   */
+  static async getArticlesByCategory(category: string): Promise<ExtendedArticle[]> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('category', category)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(article => ({
+         ...article,
+         tags: Array.isArray(article.tags) ? article.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(article.content || '')
+       }));
+    } catch (error) {
+      console.error('获取分类文章失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取特色文章
+   */
+  static async getFeaturedArticles(): Promise<ExtendedArticle[]> {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('is_featured', true)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(article => ({
+         ...article,
+         tags: Array.isArray(article.tags) ? article.tags.filter(tag => typeof tag === 'string') as string[] : [],
+         metadata: {},
+         readTime: this.calculateReadTime(article.content || '')
+       }));
+    } catch (error) {
+      console.error('获取特色文章失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 增加文章浏览量
+   */
+  static async incrementViews(id: string): Promise<void> {
+     try {
+       // 先获取当前浏览量，然后增加1
+       const { data: currentData, error: fetchError } = await supabase
+         .from('articles')
+         .select('views')
+         .eq('id', id)
+         .single();
+
+       if (fetchError) throw fetchError;
+
+       const currentViews = currentData?.views || 0;
+       const { error } = await supabase
+         .from('articles')
+         .update({ 
+           views: currentViews + 1,
+           updated_at: new Date().toISOString()
+         })
+         .eq('id', id);
+
+       if (error) throw error;
+     } catch (error) {
+       console.error('增加浏览量失败:', error);
+       // 不抛出错误，因为这不是关键功能
+     }
+   }
+
+  /**
+   * 计算阅读时间（分钟）
+   */
+  private static calculateReadTime(content: string): number {
+    const wordsPerMinute = 200; // 平均阅读速度
+    const words = content.trim().split(/\s+/).length;
+    return Math.ceil(words / wordsPerMinute);
   }
 }
 
-/**
- * 内容搜索和过滤服务
- */
-export class ContentSearchService {
-  /**
-   * 搜索页面内容
-   */
-  static async searchContents(params: {
-    pageId?: string;
-    contentType?: string;
-    searchText?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<{ data: PageContent[]; count: number }> {
-    let query = supabase
-      .from('page_contents')
-      .select('*', { count: 'exact' })
-      .eq('is_active', true);
-
-    if (params.pageId) {
-      query = query.eq('page_id', params.pageId);
-    }
-
-    if (params.contentType) {
-      query = query.eq('content_type', params.contentType);
-    }
-
-    if (params.searchText) {
-      query = query.or(`content_key.ilike.%${params.searchText}%,content_data->>text.ilike.%${params.searchText}%`);
-    }
-
-    if (params.limit) {
-      query = query.limit(params.limit);
-    }
-
-    if (params.offset) {
-      query = query.range(params.offset, params.offset + (params.limit || 10) - 1);
-    }
-
-    query = query.order('updated_at', { ascending: false });
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      throw new Error(`搜索内容失败: ${error.message}`);
-    }
-
-    return { data: data || [], count: count || 0 };
-  }
-
-  /**
-   * 搜索组件实例
-   */
-  static async searchComponents(params: {
-    pageId?: string;
-    componentType?: string;
-    searchText?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<{ data: ComponentInstance[]; count: number }> {
-    let query = supabase
-      .from('component_instances')
-      .select('*', { count: 'exact' })
-      .eq('is_active', true);
-
-    if (params.pageId) {
-      query = query.eq('page_id', params.pageId);
-    }
-
-    if (params.componentType) {
-      query = query.eq('component_type', params.componentType);
-    }
-
-    if (params.searchText) {
-      query = query.or(`component_name.ilike.%${params.searchText}%,component_type.ilike.%${params.searchText}%`);
-    }
-
-    if (params.limit) {
-      query = query.limit(params.limit);
-    }
-
-    if (params.offset) {
-      query = query.range(params.offset, params.offset + (params.limit || 10) - 1);
-    }
-
-    query = query.order('updated_at', { ascending: false });
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      throw new Error(`搜索组件失败: ${error.message}`);
-    }
-
-    return { data: data || [], count: count || 0 };
-  }
-}
+export default ContentService;

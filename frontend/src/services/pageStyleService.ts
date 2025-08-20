@@ -4,9 +4,9 @@
  */
 import { supabase } from '../lib/supabase';
 import type {
-  PageStyle,
-  PageStyleInsert,
-  PageStyleUpdate
+  UIConfig,
+  UIConfigInsert,
+  UIConfigUpdate
 } from '../types/database';
 
 /**
@@ -139,20 +139,21 @@ export class PageStyleDAO {
     themeId: string,
     pageName?: string,
     sectionName?: string
-  ): Promise<PageStyle[]> {
+  ): Promise<UIConfig[]> {
     try {
       let query = supabase
-        .from('page_styles')
+        .from('ui_configs')
         .select('*')
-        .eq('theme_id', themeId)
+        .eq('config_key', `theme_${themeId}`)
+        .eq('config_type', 'page_style')
         .eq('is_active', true);
 
       if (pageName) {
-        query = query.eq('page_name', pageName);
+        query = query.eq('component_type', pageName);
       }
 
       if (sectionName) {
-        query = query.eq('section_name', sectionName);
+        query = query.eq('config_name', sectionName);
       }
 
       const { data, error } = await query.order('sort_order', { ascending: true });
@@ -171,12 +172,13 @@ export class PageStyleDAO {
   /**
    * 根据ID获取页面样式
    */
-  static async findPageStyleById(id: string): Promise<PageStyle | null> {
+  static async findPageStyleById(id: string): Promise<UIConfig | null> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
+        .from('ui_configs')
         .select('*')
         .eq('id', id)
+        .eq('config_type', 'page_style')
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -193,11 +195,14 @@ export class PageStyleDAO {
   /**
    * 创建页面样式
    */
-  static async createPageStyle(pageStyle: PageStyleInsert): Promise<string> {
+  static async createPageStyle(pageStyle: UIConfigInsert): Promise<string> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
-        .insert(pageStyle)
+        .from('ui_configs')
+        .insert({
+          ...pageStyle,
+          config_type: 'page_style'
+        })
         .select('id')
         .single();
 
@@ -215,12 +220,13 @@ export class PageStyleDAO {
   /**
    * 更新页面样式
    */
-  static async updatePageStyle(id: string, updates: PageStyleUpdate): Promise<PageStyle> {
+  static async updatePageStyle(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
+        .from('ui_configs')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', id)
+        .eq('config_type', 'page_style')
         .select()
         .single();
 
@@ -241,9 +247,10 @@ export class PageStyleDAO {
   static async deletePageStyle(id: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('page_styles')
+        .from('ui_configs')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('config_type', 'page_style');
 
       if (error) {
         throw new Error(`删除页面样式失败: ${error.message}`);
@@ -261,9 +268,10 @@ export class PageStyleDAO {
     try {
       const promises = updates.map(({ id, sort_order }) =>
         supabase
-          .from('page_styles')
+          .from('ui_configs')
           .update({ sort_order, updated_at: new Date().toISOString() })
           .eq('id', id)
+          .eq('config_type', 'page_style')
       );
 
       const results = await Promise.all(promises);
@@ -282,12 +290,13 @@ export class PageStyleDAO {
   /**
    * 切换页面样式激活状态
    */
-  static async togglePageStyleActive(id: string, isActive: boolean): Promise<PageStyle> {
+  static async togglePageStyleActive(id: string, isActive: boolean): Promise<UIConfig> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
+        .from('ui_configs')
         .update({ is_active: isActive, updated_at: new Date().toISOString() })
         .eq('id', id)
+        .eq('config_type', 'page_style')
         .select()
         .single();
 
@@ -308,10 +317,11 @@ export class PageStyleDAO {
   static async findPageSections(themeId: string, pageName: string): Promise<string[]> {
     try {
       const { data, error } = await supabase
-        .from('page_styles')
-        .select('section_name')
-        .eq('theme_id', themeId)
-        .eq('page_name', pageName)
+        .from('ui_configs')
+        .select('config_name')
+        .eq('config_key', `theme_${themeId}`)
+        .eq('component_type', pageName)
+        .eq('config_type', 'page_style')
         .eq('is_active', true);
 
       if (error) {
@@ -319,7 +329,7 @@ export class PageStyleDAO {
       }
 
       // 去重并过滤空值
-      const sections = [...new Set(data?.map(item => item.section_name).filter(Boolean))] as string[];
+      const sections = [...new Set(data?.map(item => item.config_name).filter(Boolean))] as string[];
       return sections;
     } catch (error) {
       console.error('PageStyleDAO.findPageSections error:', error);
@@ -435,12 +445,12 @@ export class PageStyleService {
   /**
    * 创建页面样式
    */
-  async createPageStyle(pageStyle: PageStyleInsert): Promise<string> {
+  async createPageStyle(pageStyle: UIConfigInsert): Promise<string> {
     try {
       const styleId = await PageStyleDAO.createPageStyle(pageStyle);
       
       // 清除相关缓存
-      this.clearPageCache(pageStyle.theme_id, pageStyle.page_name);
+      this.clearPageCache(pageStyle.config_key?.replace('theme_', '') || '', pageStyle.component_type || '');
       
       return styleId;
     } catch (error) {
@@ -452,17 +462,19 @@ export class PageStyleService {
   /**
    * 更新页面样式
    */
-  async updatePageStyle(id: string, updates: PageStyleUpdate): Promise<PageStyle> {
+  async updatePageStyle(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const updatedStyle = await PageStyleDAO.updatePageStyle(id, updates);
       
       // 清除相关缓存
-      this.clearPageCache(updatedStyle.theme_id, updatedStyle.page_name);
+      const themeId = updatedStyle.config_key?.replace('theme_', '') || '';
+      const pageName = updatedStyle.component_type || '';
+      this.clearPageCache(themeId, pageName);
       
       // 通知监听器
       if (updatedStyle.is_active) {
-        const configuration = await this.getPageStyles(updatedStyle.theme_id, updatedStyle.page_name);
-        this.notifyPageStyleUpdate(updatedStyle.page_name, configuration);
+        const configuration = await this.getPageStyles(themeId, pageName);
+        this.notifyPageStyleUpdate(pageName, configuration);
       }
       
       return updatedStyle;
@@ -484,7 +496,9 @@ export class PageStyleService {
       
       // 清除相关缓存
       if (style) {
-        this.clearPageCache(style.theme_id, style.page_name);
+        const themeId = style.config_key?.replace('theme_', '') || '';
+        const pageName = style.component_type || '';
+        this.clearPageCache(themeId, pageName);
       }
     } catch (error) {
       console.error('删除页面样式失败:', error);
@@ -510,12 +524,14 @@ export class PageStyleService {
   /**
    * 切换页面样式激活状态
    */
-  async togglePageStyleActive(id: string, isActive: boolean): Promise<PageStyle> {
+  async togglePageStyleActive(id: string, isActive: boolean): Promise<UIConfig> {
     try {
       const updatedStyle = await PageStyleDAO.togglePageStyleActive(id, isActive);
       
       // 清除相关缓存
-      this.clearPageCache(updatedStyle.theme_id, updatedStyle.page_name);
+      const themeId = updatedStyle.config_key?.replace('theme_', '') || '';
+      const pageName = updatedStyle.component_type || '';
+      this.clearPageCache(themeId, pageName);
       
       return updatedStyle;
     } catch (error) {
@@ -573,21 +589,21 @@ export class PageStyleService {
   /**
    * 合并页面样式配置
    */
-  private mergePageStyles(pageStyles: PageStyle[]): PageStyleConfiguration {
+  private mergePageStyles(pageStyles: UIConfig[]): PageStyleConfiguration {
     const configuration: PageStyleConfiguration = {
       layout: {}
     };
     
     pageStyles.forEach(style => {
       try {
-        const styleData = this.parseStyleData(style.style_data);
+        const styleData = this.parseStyleData(style.config_value);
         
-        if (style.section_name) {
+        if (style.config_name) {
           // 区域级样式
-          if (!configuration[style.section_name]) {
-            configuration[style.section_name] = {};
+          if (!configuration[style.config_name]) {
+            configuration[style.config_name] = {};
           }
-          Object.assign(configuration[style.section_name] as Record<string, unknown>, styleData);
+          Object.assign(configuration[style.config_name] as Record<string, unknown>, styleData);
         } else {
           // 页面级样式
           Object.assign(configuration, styleData);

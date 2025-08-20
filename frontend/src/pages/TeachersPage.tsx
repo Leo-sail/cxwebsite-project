@@ -7,10 +7,9 @@ import { AcademicCapIcon } from '@heroicons/react/24/outline';
 import { QUERY_KEYS } from '../services/queryClient';
 import { teacherApi } from '../services/api';
 import { SEO, TeachersPageHeaderIcon } from '../components';
-// import LoadingSpinner from '../components/LoadingSpinner';
+import { useText } from '../hooks/useText';
 import Pagination from '../components/Pagination';
 import { AnimatedContainer } from '../components/animation/AnimatedContainer';
-// import { GradientBackground } from '../components/ui/GradientBackground'; // 暂时注释，如需要可取消注释
 
 import { useResponsive, useResponsiveValue, useResponsiveFontSize, useResponsiveSpacing } from '../hooks/useResponsive';
 import { useCardHeight } from '../hooks/useCardHeight';
@@ -22,6 +21,16 @@ import { TeacherAvatar } from '../components/ui/TeacherAvatar';
  */
 const TeachersPage: React.FC = () => {
   const responsive = useResponsive();
+  
+  // 获取页面文字内容
+  const pageTitle = useText('teachers_page_title', 'teachers');
+  const pageSubtitle = useText('teachers_page_subtitle', 'teachers');
+  const seoTitle = useText('teachers_seo_title', 'teachers');
+  const seoDescription = useText('teachers_seo_description', 'teachers');
+  
+  // 标签文字
+  const tagSeniorTeam = useText('tag_senior_team', 'teachers') || '资深师资团队';
+  const tagProfessionalExperience = useText('tag_professional_experience', 'teachers') || '专业教学经验';
   
   // 响应式配置
   const gridCols = useResponsiveValue({ xs: 1, sm: 1, md: 2, lg: 3 });
@@ -80,8 +89,8 @@ const TeachersPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="师资力量 - 考研教育平台"
-        description="经验丰富的名师团队，为你的考研之路保驾护航。查看我们的优秀师资团队。"
+        title={seoTitle || "师资力量 - 考研教育平台"}
+        description={seoDescription || "经验丰富的名师团队，为你的考研之路保驾护航。查看我们的优秀师资团队。"}
         keywords="考研师资,名师团队,考研老师,专业辅导"
       />
 
@@ -96,17 +105,17 @@ const TeachersPage: React.FC = () => {
              >
               <TeachersPageHeaderIcon
                 icon={AcademicCapIcon}
-                title="师资力量"
-                subtitle="汇聚名校名师，拥有丰富的考研辅导经验，为学员提供专业、高效的指导服务"
+                title={pageTitle || "师资力量"}
+                subtitle={pageSubtitle || "汇聚名校名师，拥有丰富的考研辅导经验，为学员提供专业、高效的指导服务"}
                 titleClassName={`${headerTitleSize} font-bold text-white mb-4`}
                 subtitleClassName={`${headerSubtitleSize} text-emerald-100 max-w-3xl mx-auto leading-relaxed`}
               />
               <div className={`mt-6 ${responsive.isMobile ? 'flex-col gap-4' : 'flex-row gap-8'} flex items-center justify-center text-sm text-emerald-200`}>
                 <div className="flex items-center gap-2">
-                  <span>资深师资团队</span>
+                  <span>{tagSeniorTeam}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>专业教学经验</span>
+                  <span>{tagProfessionalExperience}</span>
                 </div>
               </div>
             </AnimatedContainer>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useComponentStyles } from '../../hooks/useComponentStyles';
 import { ThemedButton } from '../themed/ThemedButton';
+import { isValidVideoSrc } from '../../utils/mediaValidation';
 
 /**
  * Hero组件变体类型
@@ -162,13 +163,14 @@ export const Hero: React.FC<HeroProps> = ({
       }}
     >
       {/* 背景视频 */}
-      {backgroundVideo && (
+      {backgroundVideo && isValidVideoSrc(backgroundVideo) && (
         <video
           className="absolute inset-0 w-full h-full object-cover z-0"
           autoPlay
           muted
           loop
           playsInline
+          
         >
           <source src={backgroundVideo} type="video/mp4" />
         </video>

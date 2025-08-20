@@ -1,164 +1,244 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { ContentService, ComponentInstanceService, ContentSearchService } from '../services/contentService';
-import type {
-  PageContent,
-  ComponentInstance,
-  ExtendedComponentInstance,
-  ContentSearchParams,
-  ComponentInstanceSearchParams,
-  ContentRealtimeEvent,
-  ContentOperationResult
-} from '../types/content';
+import type { Database } from '../types/database';
+
+// 基础内容类型定义
+type Article = Database['public']['Tables']['articles']['Row'];
+type ArticleInsert = Database['public']['Tables']['articles']['Insert'];
+type ArticleUpdate = Database['public']['Tables']['articles']['Update'];
+
+type UIConfig = Database['public']['Tables']['ui_configs']['Row'];
+type UIConfigInsert = Database['public']['Tables']['ui_configs']['Insert'];
+type UIConfigUpdate = Database['public']['Tables']['ui_configs']['Update'];
+
+// 内容操作结果类型
+interface ContentOperationResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
+// 实时事件类型
+interface ContentRealtimeEvent {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  table: string;
+  new?: any;
+  old?: any;
+  timestamp: string;
+}
 
 /**
- * 页面内容管理Hook
- * @param pageId 页面ID
+ * 文章内容管理Hook
+ * @param categoryId 分类ID（可选）
  */
-export const usePageContents = (pageId: string) => {
+export const useArticles = (categoryId?: string) => {
   const queryClient = useQueryClient();
 
   const {
-    data: contents = [],
+    data: articles = [],
     isLoading,
     error,
     refetch
   } = useQuery({
-    queryKey: ['pageContents', pageId],
-    queryFn: () => ContentService.getPageContents(pageId),
-    enabled: !!pageId
-  });
-
-  // 创建内容
-  const createContentMutation = useMutation({
-    mutationFn: ContentService.createContent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pageContents', pageId] });
+    queryKey: ['articles', categoryId],
+    queryFn: async () => {
+      let query = supabase
+        .from('articles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (categoryId) {
+        query = query.eq('category', categoryId);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
     }
   });
 
-  // 更新内容
-  const updateContentMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<PageContent> }) =>
-      ContentService.updateContent(id, data),
+  // 创建文章
+  const createArticleMutation = useMutation({
+    mutationFn: async (articleData: ArticleInsert): Promise<ContentOperationResult> => {
+      try {
+        const { data, error } = await supabase
+          .from('articles')
+          .insert(articleData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return { success: true, data };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pageContents', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     }
   });
 
-  // 删除内容
-  const deleteContentMutation = useMutation({
-    mutationFn: ContentService.deleteContent,
+  // 更新文章
+  const updateArticleMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: ArticleUpdate }): Promise<ContentOperationResult> => {
+      try {
+        const { data: result, error } = await supabase
+          .from('articles')
+          .update(data)
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return { success: true, data: result };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pageContents', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     }
   });
 
-  // 批量更新排序
-  const updateSortOrderMutation = useMutation({
-    mutationFn: ContentService.updateContentOrder,
+  // 删除文章
+  const deleteArticleMutation = useMutation({
+    mutationFn: async (id: string): Promise<ContentOperationResult> => {
+      try {
+        const { error } = await supabase
+          .from('articles')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pageContents', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     }
   });
 
   return {
-    contents,
+    articles,
     isLoading,
     error,
     refetch,
-    createContent: createContentMutation.mutateAsync,
-    updateContent: updateContentMutation.mutateAsync,
-    deleteContent: deleteContentMutation.mutateAsync,
-    updateSortOrder: updateSortOrderMutation.mutateAsync,
-    isCreating: createContentMutation.isPending,
-    isUpdating: updateContentMutation.isPending,
-    isDeleting: deleteContentMutation.isPending
+    createArticle: createArticleMutation.mutateAsync,
+    updateArticle: updateArticleMutation.mutateAsync,
+    deleteArticle: deleteArticleMutation.mutateAsync,
+    isCreating: createArticleMutation.isPending,
+    isUpdating: updateArticleMutation.isPending,
+    isDeleting: deleteArticleMutation.isPending
   };
 };
 
 /**
- * 组件实例管理Hook
- * @param pageId 页面ID
+ * UI配置管理Hook
+ * @param configType 配置类型
  */
-export const useComponentInstances = (pageId: string) => {
+export const useUIConfigs = (configType?: string) => {
   const queryClient = useQueryClient();
 
-  // 获取组件实例列表
   const {
-    data: instances,
+    data: configs = [],
     isLoading,
     error,
     refetch
   } = useQuery({
-    queryKey: ['component-instances', pageId],
-    queryFn: () => ComponentInstanceService.getPageComponents(pageId),
-    enabled: !!pageId
-  });
-
-  // 获取组件树
-  const {
-    data: componentTree,
-    isLoading: isLoadingTree
-  } = useQuery({
-    queryKey: ['component-tree', pageId],
-    queryFn: () => ComponentInstanceService.getComponentTree(pageId),
-    enabled: !!pageId
-  });
-
-  // 创建组件实例
-  const createInstanceMutation = useMutation({
-    mutationFn: ComponentInstanceService.createComponent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['component-instances', pageId] });
-      queryClient.invalidateQueries({ queryKey: ['component-tree', pageId] });
+    queryKey: ['ui-configs', configType],
+    queryFn: async () => {
+      let query = supabase
+        .from('ui_configs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (configType) {
+        query = query.eq('config_type', configType);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
     }
   });
 
-  // 更新组件实例
-  const updateInstanceMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ComponentInstance> }) =>
-      ComponentInstanceService.updateComponent(id, data),
+  // 创建配置
+  const createConfigMutation = useMutation({
+    mutationFn: async (configData: UIConfigInsert): Promise<ContentOperationResult> => {
+      try {
+        const { data, error } = await supabase
+          .from('ui_configs')
+          .insert(configData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return { success: true, data };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['component-instances', pageId] });
-      queryClient.invalidateQueries({ queryKey: ['component-tree', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['ui-configs'] });
     }
   });
 
-  // 删除组件实例
-  const deleteInstanceMutation = useMutation({
-    mutationFn: ComponentInstanceService.deleteComponent,
+  // 更新配置
+  const updateConfigMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UIConfigUpdate }): Promise<ContentOperationResult> => {
+      try {
+        const { data: result, error } = await supabase
+          .from('ui_configs')
+          .update(data)
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return { success: true, data: result };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['component-instances', pageId] });
-      queryClient.invalidateQueries({ queryKey: ['component-tree', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['ui-configs'] });
     }
   });
 
-  // 复制组件实例
-  const cloneInstanceMutation = useMutation({
-    mutationFn: ({ id, newPageId }: { id: string; newPageId?: string }) =>
-      ComponentInstanceService.duplicateComponent(id, newPageId),
+  // 删除配置
+  const deleteConfigMutation = useMutation({
+    mutationFn: async (id: string): Promise<ContentOperationResult> => {
+      try {
+        const { error } = await supabase
+          .from('ui_configs')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['component-instances', pageId] });
-      queryClient.invalidateQueries({ queryKey: ['component-tree', pageId] });
+      queryClient.invalidateQueries({ queryKey: ['ui-configs'] });
     }
   });
 
   return {
-    instances,
-    componentTree,
+    configs,
     isLoading,
-    isLoadingTree,
     error,
     refetch,
-    createInstance: createInstanceMutation.mutateAsync,
-    updateInstance: updateInstanceMutation.mutateAsync,
-    deleteInstance: deleteInstanceMutation.mutateAsync,
-    cloneInstance: cloneInstanceMutation.mutateAsync,
-    isCreating: createInstanceMutation.isPending,
-    isUpdating: updateInstanceMutation.isPending,
-    isDeleting: deleteInstanceMutation.isPending
+    createConfig: createConfigMutation.mutateAsync,
+    updateConfig: updateConfigMutation.mutateAsync,
+    deleteConfig: deleteConfigMutation.mutateAsync,
+    isCreating: createConfigMutation.isPending,
+    isUpdating: updateConfigMutation.isPending,
+    isDeleting: deleteConfigMutation.isPending
   };
 };
 
@@ -166,95 +246,112 @@ export const useComponentInstances = (pageId: string) => {
  * 内容搜索Hook
  */
 export const useContentSearch = () => {
-  const [searchParams, setSearchParams] = useState<ContentSearchParams>({});
-  const [componentSearchParams, setComponentSearchParams] = useState<ComponentInstanceSearchParams>({});
+  const [searchResults, setSearchResults] = useState<Article[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
-  // 搜索页面内容
-  const {
-    data: searchResults,
-    isLoading: isSearching,
-    error: searchError
-  } = useQuery({
-    queryKey: ['content-search', searchParams],
-    queryFn: () => ContentSearchService.searchContents(searchParams),
-    enabled: Object.keys(searchParams).length > 0
-  });
+  /**
+   * 搜索文章内容
+   * @param query 搜索关键词
+   * @param category 分类过滤
+   */
+  const searchArticles = useCallback(async (query: string, category?: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-  // 搜索组件实例
-  const {
-    data: componentSearchResults,
-    isLoading: isSearchingComponents,
-    error: componentSearchError
-  } = useQuery({
-    queryKey: ['component-search', componentSearchParams],
-    queryFn: () => ContentSearchService.searchComponents(componentSearchParams),
-    enabled: Object.keys(componentSearchParams).length > 0
-  });
+    setIsSearching(true);
+    setSearchError(null);
 
-  const searchContents = useCallback((params: ContentSearchParams) => {
-    setSearchParams(params);
+    try {
+      let supabaseQuery = supabase
+        .from('articles')
+        .select('*')
+        .or(`title.ilike.%${query}%,content.ilike.%${query}%,summary.ilike.%${query}%`)
+        .order('created_at', { ascending: false });
+      
+      if (category) {
+        supabaseQuery = supabaseQuery.eq('category', category);
+      }
+      
+      const { data, error } = await supabaseQuery;
+      
+      if (error) throw error;
+      setSearchResults(data || []);
+    } catch (error: any) {
+      setSearchError(error.message);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   }, []);
 
-  const searchComponents = useCallback((params: ComponentInstanceSearchParams) => {
-    setComponentSearchParams(params);
-  }, []);
-
+  /**
+   * 清空搜索结果
+   */
   const clearSearch = useCallback(() => {
-    setSearchParams({});
-    setComponentSearchParams({});
+    setSearchResults([]);
+    setSearchError(null);
   }, []);
 
   return {
     searchResults,
-    componentSearchResults,
     isSearching,
-    isSearchingComponents,
     searchError,
-    componentSearchError,
-    searchContents,
-    searchComponents,
+    searchArticles,
     clearSearch
   };
 };
 
 /**
- * 实时内容更新Hook
- * @param pageId 页面ID
- * @param onUpdate 更新回调函数
+ * 内容实时更新Hook
+ * @param table 监听的表名
+ * @param filter 过滤条件
+ * @param onUpdate 更新回调
  */
 export const useContentRealtime = (
-  pageId: string,
+  table: 'articles' | 'ui_configs',
+  filter?: string,
   onUpdate?: (event: ContentRealtimeEvent) => void
 ) => {
-  const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [lastEvent, setLastEvent] = useState<ContentRealtimeEvent | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const queryClient = useQueryClient();
 
-  // 使用useCallback稳定化onUpdate回调
-  const stableOnUpdate = useCallback((event: ContentRealtimeEvent) => {
-    onUpdate?.(event);
-  }, [onUpdate]);
+  const stableOnUpdate = useCallback(
+    (event: ContentRealtimeEvent) => {
+      onUpdate?.(event);
+    },
+    [onUpdate]
+  );
 
-  useEffect(() => {
-    if (!pageId) return;
+  const setupSubscription = useCallback(() => {
+    if (!table) return null;
 
-    // 订阅页面内容变更
-    const contentChannel = supabase
-      .channel(`page-contents-${pageId}`)
+    console.log(`[Realtime] 设置 ${table} 表的实时订阅...`);
+    setConnectionError(null);
+
+    // 创建实时订阅
+    const channel = supabase
+      .channel(`${table}-changes-${Date.now()}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'page_contents',
-          filter: `page_id=eq.${pageId}`
+          table: table,
+          ...(filter && { filter })
         },
         (payload) => {
+          console.log(`[Realtime] 收到 ${table} 表变更:`, payload.eventType);
           const event: ContentRealtimeEvent = {
             eventType: payload.eventType as any,
-            table: 'page_contents',
-            new: payload.new as PageContent,
-            old: payload.old as PageContent,
+            table: table,
+            new: payload.new,
+            old: payload.old,
             timestamp: new Date().toISOString()
           };
           
@@ -262,52 +359,53 @@ export const useContentRealtime = (
           stableOnUpdate(event);
           
           // 更新查询缓存
-          queryClient.invalidateQueries({ queryKey: ['page-contents', pageId] });
+          queryClient.invalidateQueries({ queryKey: [table] });
         }
       )
-      .subscribe((status) => {
-        setIsConnected(status === 'SUBSCRIBED');
+      .subscribe((status, err) => {
+        console.log(`[Realtime] ${table} 订阅状态:`, status);
+        
+        if (status === 'SUBSCRIBED') {
+          setIsConnected(true);
+          setConnectionError(null);
+          setRetryCount(0);
+        } else if (status === 'CHANNEL_ERROR') {
+          setIsConnected(false);
+          setConnectionError(err?.message || '实时连接错误');
+          console.error(`[Realtime] ${table} 连接错误:`, err);
+          
+          // 自动重连机制
+          if (retryCount < 3) {
+            setTimeout(() => {
+              console.log(`[Realtime] 尝试重连 ${table} (${retryCount + 1}/3)`);
+              setRetryCount(prev => prev + 1);
+            }, 5000 * (retryCount + 1)); // 递增延迟
+          }
+        } else if (status === 'CLOSED') {
+          setIsConnected(false);
+          console.log(`[Realtime] ${table} 连接已关闭`);
+        }
       });
 
-    // 订阅组件实例变更
-    const componentChannel = supabase
-      .channel(`component-instances-${pageId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'component_instances',
-          filter: `page_id=eq.${pageId}`
-        },
-        (payload) => {
-          const event: ContentRealtimeEvent = {
-            eventType: payload.eventType as any,
-            table: 'component_instances',
-            new: payload.new as ComponentInstance,
-            old: payload.old as ComponentInstance,
-            timestamp: new Date().toISOString()
-          };
-          
-          setLastEvent(event);
-          stableOnUpdate(event);
-          
-          // 更新查询缓存
-          queryClient.invalidateQueries({ queryKey: ['component-instances', pageId] });
-          queryClient.invalidateQueries({ queryKey: ['component-tree', pageId] });
-        }
-      )
-      .subscribe();
+    return channel;
+  }, [table, filter, stableOnUpdate, queryClient, retryCount]);
 
+  useEffect(() => {
+    const channel = setupSubscription();
+    
     return () => {
-      contentChannel.unsubscribe();
-      componentChannel.unsubscribe();
+      if (channel) {
+        console.log(`[Realtime] 清理 ${table} 订阅`);
+        supabase.removeChannel(channel);
+      }
     };
-  }, [pageId, stableOnUpdate]);
+  }, [setupSubscription]);
 
   return {
     isConnected,
-    lastEvent
+    connectionError,
+    lastEvent,
+    retryCount
   };
 };
 
@@ -315,66 +413,58 @@ export const useContentRealtime = (
  * 内容验证Hook
  */
 export const useContentValidation = () => {
-  const validateContent = useCallback((content: Partial<PageContent>): ContentOperationResult => {
+  /**
+   * 验证文章数据
+   * @param article 文章数据
+   */
+  const validateArticle = useCallback((article: Partial<ArticleInsert>) => {
     const errors: string[] = [];
 
-    if (!content.page_id) {
-      errors.push('页面ID不能为空');
+    if (!article.title?.trim()) {
+      errors.push('标题不能为空');
     }
 
-    if (!content.content_type) {
-      errors.push('内容类型不能为空');
+    if (!article.content?.trim()) {
+      errors.push('内容不能为空');
     }
 
-    if (!content.content_key) {
-      errors.push('内容键不能为空');
+    if (article.title && article.title.length > 200) {
+      errors.push('标题长度不能超过200个字符');
     }
 
-    if (!content.content_data) {
-      errors.push('内容数据不能为空');
-    }
-
-    if (errors.length > 0) {
-      return {
-        success: false,
-        error: errors.join(', ')
-      };
-    }
-
-    return { success: true };
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }, []);
 
-  const validateComponentInstance = useCallback((instance: Partial<ExtendedComponentInstance>): ContentOperationResult => {
+  /**
+   * 验证UI配置数据
+   * @param config UI配置数据
+   */
+  const validateUIConfig = useCallback((config: Partial<UIConfigInsert>) => {
     const errors: string[] = [];
 
-    if (!instance.page_id) {
-      errors.push('页面ID不能为空');
+    if (!config.config_key?.trim()) {
+      errors.push('配置键不能为空');
     }
 
-    if (!instance.component_type) {
-      errors.push('组件类型不能为空');
+    if (!config.config_type?.trim()) {
+      errors.push('配置类型不能为空');
     }
 
-    if (!instance.component_name) {
-      errors.push('组件名称不能为空');
+    if (!config.config_value) {
+      errors.push('配置值不能为空');
     }
 
-    if (!instance.props_data) {
-      errors.push('组件属性不能为空');
-    }
-
-    if (errors.length > 0) {
-      return {
-        success: false,
-        error: errors.join(', ')
-      };
-    }
-
-    return { success: true };
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }, []);
 
   return {
-    validateContent,
-    validateComponentInstance
+    validateArticle,
+    validateUIConfig
   };
 };

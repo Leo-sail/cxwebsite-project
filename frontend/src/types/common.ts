@@ -5,8 +5,8 @@
 // 基础实体接口
 export interface BaseEntity {
   id: string;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // API响应基础结构

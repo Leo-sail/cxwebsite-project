@@ -14,7 +14,7 @@ import {
   PlusIcon,
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '../../store';
-// import { permissionManager } from '../../services/permissionService'; // 暂时注释掉未使用的导入
+
 import { PERMISSION_CONFIG } from '../../config/permissions';
 import type { Permission, ResourceType, PermissionAction } from '../../types/permission';
 

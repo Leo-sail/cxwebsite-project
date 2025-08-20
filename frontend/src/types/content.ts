@@ -1,13 +1,29 @@
 import type { Database } from './database';
 
-// 数据库表类型
-export type PageContent = Database['public']['Tables']['page_contents']['Row'];
-export type PageContentInsert = Database['public']['Tables']['page_contents']['Insert'];
-export type PageContentUpdate = Database['public']['Tables']['page_contents']['Update'];
+// 数据库表类型 - 使用实际存在的表
+export type Article = Database['public']['Tables']['articles']['Row'];
+export type ArticleInsert = Database['public']['Tables']['articles']['Insert'];
+export type ArticleUpdate = Database['public']['Tables']['articles']['Update'];
 
-export type ComponentInstance = Database['public']['Tables']['component_instances']['Row'];
-export type ComponentInstanceInsert = Database['public']['Tables']['component_instances']['Insert'];
-export type ComponentInstanceUpdate = Database['public']['Tables']['component_instances']['Update'];
+export type UIConfig = Database['public']['Tables']['ui_configs']['Row'];
+export type UIConfigInsert = Database['public']['Tables']['ui_configs']['Insert'];
+export type UIConfigUpdate = Database['public']['Tables']['ui_configs']['Update'];
+
+// ComponentTextStorage 类型已移除 - 表已被删除
+// 如需类似功能，请使用 UIConfig 类型
+
+export type PageConfig = Database['public']['Tables']['page_configs']['Row'];
+export type PageConfigInsert = Database['public']['Tables']['page_configs']['Insert'];
+export type PageConfigUpdate = Database['public']['Tables']['page_configs']['Update'];
+
+// 向后兼容的类型别名 - 现在映射到 UIConfig
+export type PageContent = UIConfig;
+export type PageContentInsert = UIConfigInsert;
+export type PageContentUpdate = UIConfigUpdate;
+
+export type ComponentInstance = PageConfig;
+export type ComponentInstanceInsert = PageConfigInsert;
+export type ComponentInstanceUpdate = PageConfigUpdate;
 
 // 内容类型
 export const ContentType = {
@@ -119,17 +135,16 @@ export interface ContentData {
 }
 
 // 扩展的页面内容接口
-export interface ExtendedPageContent extends Omit<PageContent, 'content_data' | 'position_data' | 'style_data'> {
+export interface ExtendedPageContent extends Omit<PageContent, 'config_value'> {
   content_data: ContentData;
   position_data?: PositionData;
   style_data?: StyleData;
 }
 
 // 扩展的组件实例接口
-export interface ExtendedComponentInstance extends Omit<ComponentInstance, 'props' | 'layout_config' | 'style_overrides'> {
-  props_data: ComponentPropsData;
-  layout_data?: LayoutData;
-  style_overrides?: StyleData;
+export interface ExtendedComponentInstance extends Omit<ComponentInstance, 'config_data' | 'layout_config'> {
+  config_data?: ComponentPropsData;
+  layout_config?: LayoutData;
   children?: ExtendedComponentInstance[];
 }
 
@@ -171,7 +186,7 @@ export interface ComponentTreeNode extends ExtendedComponentInstance {
   path: string[];
 }
 
-// 内容管理操作结果接口
+// 内容操作结果接口
 export interface ContentOperationResult<T = any> {
   success: boolean;
   data?: T;
@@ -179,12 +194,12 @@ export interface ContentOperationResult<T = any> {
   message?: string;
 }
 
-// 实时更新事件接口
+// 内容实时事件接口
 export interface ContentRealtimeEvent {
   eventType: 'INSERT' | 'UPDATE' | 'DELETE';
-  table: 'page_contents' | 'component_instances';
-  new?: PageContent | ComponentInstance;
-  old?: PageContent | ComponentInstance;
+  table: 'articles' | 'ui_configs' | 'page_configs';
+  new?: Article | UIConfig | PageConfig;
+  old?: Article | UIConfig | PageConfig;
   timestamp: string;
 }
 
@@ -223,4 +238,17 @@ export interface ComponentTemplate {
   defaultStyle?: StyleData;
   allowedChildren?: string[];
   validationRules?: ContentValidationRule[];
+}
+
+// 文章相关的扩展接口
+export interface ExtendedArticle extends Omit<Article, 'tags'> {
+  metadata?: Record<string, any>;
+  tags?: string[] | null;
+  readTime?: number;
+}
+
+// UI配置相关的扩展接口
+export interface ExtendedUIConfig extends UIConfig {
+  parsedValue?: any;
+  isActive?: boolean;
 }

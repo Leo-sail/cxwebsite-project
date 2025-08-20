@@ -8,7 +8,7 @@ import { QUERY_KEYS } from '../services/queryClient';
 import { studentCaseApi } from '../services/api';
 import { SEO, LoadingSpinner } from '../components';
 import { useResponsive, useResponsiveValue, useResponsiveFontSize } from '../hooks/useResponsive';
-// import { useTheme } from '../hooks/useTheme';
+
 // StudentCase type is imported via API response
 
 /**

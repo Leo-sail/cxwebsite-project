@@ -247,27 +247,27 @@ export const ThemedButton = forwardRef<HTMLButtonElement, ThemedButtonProps>((
   // 状态样式
   const hoverStyles = {
     ...defaultStyles.states.hover,
-    ...(getStateStyles('hover') || {})
+    ...((getStateStyles('hover') as React.CSSProperties) || {})
   } as React.CSSProperties;
 
   const activeStyles = {
     ...defaultStyles.states.active,
-    ...(getStateStyles('active') || {})
+    ...((getStateStyles('active') as React.CSSProperties) || {})
   } as React.CSSProperties;
 
   const focusStyles = {
     ...defaultStyles.states.focus,
-    ...(getStateStyles('focus') || {})
+    ...((getStateStyles('focus') as React.CSSProperties) || {})
   } as React.CSSProperties;
 
   const disabledStyles = {
     ...defaultStyles.states.disabled,
-    ...(getStateStyles('disabled') || {})
+    ...((getStateStyles('disabled') as React.CSSProperties) || {})
   } as React.CSSProperties;
 
   const loadingStyles = {
     ...defaultStyles.states.loading,
-    ...(getStateStyles('loading') || {})
+    ...((getStateStyles('loading') as React.CSSProperties) || {})
   } as React.CSSProperties;
 
   // 处理点击事件

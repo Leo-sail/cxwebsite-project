@@ -4,6 +4,7 @@
 import { supabase } from './supabase';
 import type { Session } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
+import bcrypt from 'bcryptjs';
 
 /**
  * 管理员用户类型
@@ -46,15 +47,9 @@ class AuthService {
    */
   async login(credentials: LoginFormData): Promise<AuthResponse> {
     try {
-      console.log('登录尝试:', credentials.email);
+  
       
-      // 测试Supabase连接
-      const { data: testData, error: testError } = await supabase
-        .from('admin_users')
-        .select('count')
-        .limit(1);
-      
-      console.log('Supabase连接测试:', { testData, testError });
+
       
       // 直接验证admin_users表中的用户名和密码
       const { data: adminUsers, error } = await supabase
@@ -64,10 +59,10 @@ class AuthService {
         .eq('is_active', true)
         .single();
 
-      console.log('数据库查询结果:', { adminUsers, error });
+
 
       if (error || !adminUsers) {
-        console.log('用户不存在或查询错误');
+
         return {
           user: null,
           session: null,
@@ -76,9 +71,9 @@ class AuthService {
       }
 
       // 验证密码（明文比较）
-      console.log('密码比较:', { input: credentials.password, stored: adminUsers.password });
-      if (credentials.password !== adminUsers.password) {
-        console.log('密码不匹配');
+      const isPasswordValid = credentials.password === adminUsers.password;
+      
+      if (!isPasswordValid) {
         return {
           user: null,
           session: null,

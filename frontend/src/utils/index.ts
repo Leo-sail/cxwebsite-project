@@ -206,9 +206,7 @@ export function deepClone<T>(obj: T): T {
 
 // 新增的高级工具类导出
 
-// 样式优化器
-export { default as StyleOptimizer, globalStyleOptimizer, useStyleOptimizer } from './styleOptimizer';
-export type { StyleOptimizerConfig } from './styleOptimizer';
+// 样式优化器 - 已移除未使用的模块
 
 // 响应式工具
 // 响应式工具 - 已迁移到新的Hook系统
@@ -227,10 +225,7 @@ export {
   useResponsiveCSS
 } from '../hooks/useResponsive';
 
-// 变体管理器
-export { default as VariantManager, globalVariantManager, useVariantManager } from './variantManager';
-export type { VariantDefinition, ComponentVariantConfig, VariantResolution, VariantManagerConfig } from './variantManager';
+// 变体管理器 - 已移除未使用的模块
 
 // 动画钩子
-export { default as useAnimation, useScrollAnimation } from '../hooks/useAnimation';
-export type { AnimationState, UseAnimationConfig, UseAnimationReturn, UseScrollAnimationConfig, UseScrollAnimationReturn } from '../hooks/useAnimation';
+// 动画钩子 - 已移除未使用的模块

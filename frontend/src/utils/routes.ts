@@ -29,15 +29,11 @@ export const ADMIN_ROUTES = {
   TEACHERS: '/admin/teachers',
   STUDENT_CASES: '/admin/cases',                    // 修复：与实际路由一致
   ARTICLES: '/admin/articles',
-  PAGE_CONFIGS: '/admin/page-config',               // 修复：与实际路由一致
   MEDIA_FILES: '/admin/media',                      // 修复：与实际路由一致
-  THEME_MANAGEMENT: '/admin/theme-management',      // 新增：补充缺少的常量
-  STYLE_CONFIGURATION: '/admin/style-configuration', // 新增：补充缺少的常量
   CONTENT_MANAGEMENT: '/admin/content-management',  // 新增：补充缺少的常量
-  CONTENT_SETTINGS: '/admin/content-settings',      // 新增：信息管理
   PERMISSION_CONFIG: '/admin/permission-config',
-  CONTACT_MANAGEMENT: '/admin/contact-management',
-  UI_CONFIG_MANAGER: '/admin/ui-config-manager',
+  DATABASE_MANAGER: '/admin/database-manager',      // 新增：数据库管理
+  DYNAMIC_CONTENT_DEMO: '/admin/dynamic-content-demo', // 新增：动态内容演示
 } as const;
 
 /**
@@ -180,11 +176,7 @@ export const ADMIN_NAVIGATION_ITEMS = [
     path: ADMIN_ROUTES.ARTICLES,
     icon: 'articles',
   },
-  {
-    label: '联系管理',
-    path: ADMIN_ROUTES.CONTACT_MANAGEMENT,
-    icon: 'contact',
-  },
+
   {
     label: '媒体文件',
     path: ADMIN_ROUTES.MEDIA_FILES,
@@ -194,6 +186,16 @@ export const ADMIN_NAVIGATION_ITEMS = [
     label: '权限配置',
     path: ADMIN_ROUTES.PERMISSION_CONFIG,
     icon: 'settings',
+  },
+  {
+    label: '数据库管理',
+    path: ADMIN_ROUTES.DATABASE_MANAGER,
+    icon: 'database',
+  },
+  {
+    label: '动态内容演示',
+    path: ADMIN_ROUTES.DYNAMIC_CONTENT_DEMO,
+    icon: 'content',
   },
   // 已删除的菜单项（路由常量保留，可通过直接URL访问）：
   // {

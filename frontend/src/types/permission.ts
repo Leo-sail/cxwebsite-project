@@ -31,6 +31,7 @@ export type ResourceType =
   | 'media'
   | 'users'
   | 'roles'
+  | 'content-management'
   | '*';
 
 /**

@@ -10,7 +10,7 @@ import { cn } from '../../utils';
 interface DropdownMenuContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  triggerRef: React.RefObject<HTMLElement>;
+  triggerRef: React.RefObject<HTMLElement | null>;
 }
 
 const DropdownMenuContext = createContext<DropdownMenuContextType | null>(null);
@@ -97,7 +97,7 @@ export const DropdownMenuTrigger: React.FC<DropdownMenuTriggerProps> = ({
     return React.cloneElement(children, {
       ref: triggerRef,
       onClick: handleClick,
-      className: cn(children.props.className, className),
+      className: cn((children.props as any).className, className),
       'aria-expanded': isOpen,
       'aria-haspopup': true
     } as any);

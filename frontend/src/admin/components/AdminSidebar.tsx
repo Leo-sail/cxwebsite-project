@@ -14,8 +14,8 @@ import {
   NewspaperIcon,
   CogIcon,
   PhotoIcon,
-  PencilSquareIcon,
-  EnvelopeIcon,
+  CircleStackIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../hooks/useTheme';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -33,10 +33,11 @@ const navigation = [
   { name: '师资管理', href: ADMIN_ROUTES.TEACHERS, icon: UserGroupIcon },
   { name: '学员案例', href: ADMIN_ROUTES.STUDENT_CASES, icon: DocumentTextIcon },
   { name: '文章管理', href: ADMIN_ROUTES.ARTICLES, icon: NewspaperIcon },
-  { name: '联系管理', href: ADMIN_ROUTES.CONTACT_MANAGEMENT, icon: EnvelopeIcon },
-  { name: '信息管理', href: ADMIN_ROUTES.CONTENT_SETTINGS, icon: PencilSquareIcon },
+
+  { name: '信息管理', href: ADMIN_ROUTES.CONTENT_MANAGEMENT, icon: ClipboardDocumentListIcon },
   { name: '媒体文件', href: ADMIN_ROUTES.MEDIA_FILES, icon: PhotoIcon },
   { name: '权限配置', href: ADMIN_ROUTES.PERMISSION_CONFIG, icon: CogIcon },
+  { name: '数据库管理', href: ADMIN_ROUTES.DATABASE_MANAGER, icon: CircleStackIcon },
   // 已删除的菜单项（可通过直接URL访问）：
   // { name: '页面配置', href: ADMIN_ROUTES.PAGE_CONFIGS, icon: CogIcon },
   // { name: '主题管理', href: ADMIN_ROUTES.THEME_MANAGEMENT, icon: SwatchIcon },

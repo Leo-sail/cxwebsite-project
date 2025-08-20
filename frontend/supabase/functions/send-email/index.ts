@@ -207,6 +207,16 @@ async function sendWithSMTP(emailData: EmailRequest, smtpConfig: any): Promise<E
  * 记录邮件发送日志到数据库
  */
 async function logEmailSend(emailData: EmailRequest, result: EmailResponse): Promise<void> {
+  // 注意：email_logs表已被删除，此功能已禁用
+  // 如需重新启用邮件日志功能，请先重新创建email_logs表
+  console.log('邮件发送记录:', {
+    to: emailData.to,
+    subject: emailData.subject,
+    status: result.success ? 'sent' : 'failed',
+    timestamp: new Date().toISOString()
+  });
+  
+  /* 原始代码已注释，因为email_logs表已被删除
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -227,6 +237,7 @@ async function logEmailSend(emailData: EmailRequest, result: EmailResponse): Pro
     console.error('邮件日志记录失败:', error);
     // 不抛出错误，避免影响邮件发送结果
   }
+  */
 }
 
 /* 使用说明:

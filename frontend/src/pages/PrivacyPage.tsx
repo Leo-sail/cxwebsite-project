@@ -168,7 +168,7 @@ const PrivacyPage: React.FC = () => {
                     如果您对本隐私政策有任何疑问或需要行使您的权利，请通过以下方式联系我们：
                   </p>
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-600 mb-2"><strong>邮箱：</strong> privacy@example.com</p>
+                    <p className="text-gray-600 mb-2"><strong>邮箱：</strong> privacy@yourcompany.com</p>
                     <p className="text-gray-600 mb-2"><strong>电话：</strong> 400-123-4567</p>
                     <p className="text-gray-600 mb-2"><strong>地址：</strong> 北京市海淀区中关村大街1号</p>
                     <p className="text-gray-600"><strong>工作时间：</strong> 周一至周日 9:00-21:00</p>

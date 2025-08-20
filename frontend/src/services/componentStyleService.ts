@@ -1,13 +1,9 @@
 /**
  * 组件样式服务
- * 提供组件级别的样式管理功能
+ * 提供组件级别的样式管理功能，基于ui_configs表实现
  */
 import { supabase } from '../lib/supabase';
-import type {
-  ComponentStyle,
-  ComponentStyleInsert,
-  ComponentStyleUpdate
-} from '../types/database';
+import type { UiConfig, UiConfigInsert, UiConfigUpdate } from '../types/database';
 
 /**
  * 组件样式配置接口
@@ -111,10 +107,7 @@ class ComponentStyleCache {
    * 设置缓存数据
    */
   set<T>(key: string, data: T): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
+    this.cache.set(key, { data, timestamp: Date.now() });
   }
 
   /**
@@ -149,23 +142,22 @@ export class ComponentStyleDAO {
    * 获取组件样式列表
    */
   static async findComponentStyles(
-    themeId: string,
     componentName?: string,
     variantName?: string
-  ): Promise<ComponentStyle[]> {
+  ): Promise<UiConfig[]> {
     try {
       let query = supabase
-        .from('component_styles')
+        .from('ui_configs')
         .select('*')
-        .eq('theme_id', themeId)
+        .eq('config_type', 'component')
         .eq('is_active', true);
 
       if (componentName) {
-        query = query.eq('component_name', componentName);
+        query = query.eq('component_type', componentName);
       }
 
       if (variantName) {
-        query = query.eq('variant_name', variantName);
+        query = query.contains('config_data', { variant: variantName });
       }
 
       const { data, error } = await query.order('sort_order', { ascending: true });
@@ -184,12 +176,13 @@ export class ComponentStyleDAO {
   /**
    * 根据ID获取组件样式
    */
-  static async findComponentStyleById(id: string): Promise<ComponentStyle | null> {
+  static async findComponentStyleById(id: string): Promise<UiConfig | null> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
+        .from('ui_configs')
         .select('*')
         .eq('id', id)
+        .eq('config_type', 'component')
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -206,11 +199,11 @@ export class ComponentStyleDAO {
   /**
    * 创建组件样式
    */
-  static async createComponentStyle(componentStyle: ComponentStyleInsert): Promise<string> {
+  static async createComponentStyle(componentStyle: UiConfigInsert): Promise<string> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
-        .insert(componentStyle)
+        .from('ui_configs')
+        .insert({ ...componentStyle, config_type: 'component' })
         .select('id')
         .single();
 
@@ -228,12 +221,13 @@ export class ComponentStyleDAO {
   /**
    * 更新组件样式
    */
-  static async updateComponentStyle(id: string, updates: ComponentStyleUpdate): Promise<ComponentStyle> {
+  static async updateComponentStyle(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .from('ui_configs')
+        .update(updates)
         .eq('id', id)
+        .eq('config_type', 'component')
         .select()
         .single();
 
@@ -254,9 +248,10 @@ export class ComponentStyleDAO {
   static async deleteComponentStyle(id: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('component_styles')
+        .from('ui_configs')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('config_type', 'component');
 
       if (error) {
         throw new Error(`删除组件样式失败: ${error.message}`);
@@ -272,16 +267,13 @@ export class ComponentStyleDAO {
    */
   static async updateComponentStylesOrder(updates: { id: string; sort_order: number }[]): Promise<void> {
     try {
-      const promises = updates.map(({ id, sort_order }) =>
-        supabase
-          .from('component_styles')
-          .update({ sort_order, updated_at: new Date().toISOString() })
-          .eq('id', id)
-      );
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('ui_configs')
+          .update({ sort_order: update.sort_order })
+          .eq('id', update.id)
+          .eq('config_type', 'component');
 
-      const results = await Promise.all(promises);
-      
-      for (const { error } of results) {
         if (error) {
           throw new Error(`更新组件样式排序失败: ${error.message}`);
         }
@@ -295,12 +287,13 @@ export class ComponentStyleDAO {
   /**
    * 切换组件样式激活状态
    */
-  static async toggleComponentStyleActive(id: string, isActive: boolean): Promise<ComponentStyle> {
+  static async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UiConfig> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
-        .update({ is_active: isActive, updated_at: new Date().toISOString() })
+        .from('ui_configs')
+        .update({ is_active: isActive })
         .eq('id', id)
+        .eq('config_type', 'component')
         .select()
         .single();
 
@@ -316,58 +309,68 @@ export class ComponentStyleDAO {
   }
 
   /**
-   * 获取组件的所有变体
+   * 获取组件变体列表
    */
-  static async findComponentVariants(themeId: string, componentName: string): Promise<string[]> {
+  static async findComponentVariants(componentName: string): Promise<string[]> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
-        .select('variant_name')
-        .eq('theme_id', themeId)
-        .eq('component_name', componentName)
+        .from('ui_configs')
+        .select('config_data')
+        .eq('config_type', 'component')
+        .eq('component_type', componentName)
         .eq('is_active', true);
 
       if (error) {
         throw new Error(`获取组件变体失败: ${error.message}`);
       }
 
-      // 去重并过滤空值
-      const variants = [...new Set(data?.map(item => item.variant_name).filter(Boolean))] as string[];
-      return variants;
+      const variants = new Set<string>();
+      data?.forEach(item => {
+        const configData = item.config_data as any;
+        if (configData?.variant) {
+          variants.add(configData.variant);
+        }
+      });
+
+      return Array.from(variants);
     } catch (error) {
       console.error('ComponentStyleDAO.findComponentVariants error:', error);
-      throw error;
+      return [];
     }
   }
 
   /**
-   * 获取主题下的所有组件名称
+   * 获取所有组件类型
    */
-  static async findThemeComponents(themeId: string): Promise<string[]> {
+  static async findAllComponents(): Promise<string[]> {
     try {
       const { data, error } = await supabase
-        .from('component_styles')
-        .select('component_name')
-        .eq('theme_id', themeId)
+        .from('ui_configs')
+        .select('component_type')
+        .eq('config_type', 'component')
         .eq('is_active', true);
 
       if (error) {
-        throw new Error(`获取主题组件失败: ${error.message}`);
+        throw new Error(`获取组件列表失败: ${error.message}`);
       }
 
-      // 去重并过滤空值
-      const components = [...new Set(data?.map(item => item.component_name).filter(Boolean))] as string[];
-      return components;
+      const components = new Set<string>();
+      data?.forEach(item => {
+        if (item.component_type) {
+          components.add(item.component_type);
+        }
+      });
+
+      return Array.from(components);
     } catch (error) {
-      console.error('ComponentStyleDAO.findThemeComponents error:', error);
-      throw error;
+      console.error('ComponentStyleDAO.findAllComponents error:', error);
+      return [];
     }
   }
 }
 
 /**
  * 组件样式服务类
- * 提供组件级别的样式管理功能
  */
 export class ComponentStyleService {
   private static instance: ComponentStyleService;
@@ -376,14 +379,10 @@ export class ComponentStyleService {
 
   private constructor() {
     this.cache = new ComponentStyleCache();
-    // 定期清理过期缓存
-    setInterval(() => {
-      this.cache.clearExpired();
-    }, 60000); // 每分钟清理一次
   }
 
   /**
-   * 获取服务实例（单例模式）
+   * 获取单例实例
    */
   static getInstance(): ComponentStyleService {
     if (!ComponentStyleService.instance) {
@@ -393,29 +392,24 @@ export class ComponentStyleService {
   }
 
   /**
-   * 获取组件样式配置
+   * 获取组件样式
    */
-  async getComponentStyles(themeId: string, componentName: string): Promise<ComponentStyleConfiguration> {
-    const cacheKey = `component-styles-${themeId}-${componentName}`;
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<ComponentStyleConfiguration>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
+  async getComponentStyles(componentName: string): Promise<ComponentStyleConfiguration> {
     try {
-      const componentStyles = await ComponentStyleDAO.findComponentStyles(themeId, componentName);
-      const configuration = this.mergeComponentStyles(componentStyles);
+      const cacheKey = `component-styles-${componentName}`;
+      const cached = this.cache.get<ComponentStyleConfiguration>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const componentStyles = await ComponentStyleDAO.findComponentStyles(componentName);
+      const mergedStyles = this.mergeComponentStyles(componentStyles);
       
-      this.cache.set(cacheKey, configuration);
-      return configuration;
+      this.cache.set(cacheKey, mergedStyles);
+      return mergedStyles;
     } catch (error) {
-      console.error('获取组件样式失败:', error);
-      // 返回默认配置作为降级方案
-      const defaultConfig = this.getDefaultComponentStyles(componentName);
-      this.cache.set(cacheKey, defaultConfig);
-      return defaultConfig;
+      console.error('ComponentStyleService.getComponentStyles error:', error);
+      return this.getDefaultComponentStyles(componentName);
     }
   }
 
@@ -423,70 +417,63 @@ export class ComponentStyleService {
    * 获取组件变体样式
    */
   async getComponentVariantStyles(
-    themeId: string,
     componentName: string,
     variantName: string
   ): Promise<ComponentStyleConfiguration> {
-    const cacheKey = `variant-styles-${themeId}-${componentName}-${variantName}`;
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<ComponentStyleConfiguration>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     try {
-      const variantStyles = await ComponentStyleDAO.findComponentStyles(themeId, componentName, variantName);
-      const configuration = this.mergeComponentStyles(variantStyles);
+      const cacheKey = `component-variant-${componentName}-${variantName}`;
+      const cached = this.cache.get<ComponentStyleConfiguration>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const componentStyles = await ComponentStyleDAO.findComponentStyles(componentName, variantName);
+      const mergedStyles = this.mergeComponentStyles(componentStyles);
       
-      this.cache.set(cacheKey, configuration);
-      return configuration;
+      this.cache.set(cacheKey, mergedStyles);
+      return mergedStyles;
     } catch (error) {
-      console.error('获取组件变体样式失败:', error);
-      return {};
+      console.error('ComponentStyleService.getComponentVariantStyles error:', error);
+      return this.getDefaultComponentStyles(componentName);
     }
   }
 
   /**
-   * 获取组件的所有变体
+   * 获取组件变体列表
    */
-  async getComponentVariants(themeId: string, componentName: string): Promise<string[]> {
-    const cacheKey = `component-variants-${themeId}-${componentName}`;
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<string[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
+  async getComponentVariants(componentName: string): Promise<string[]> {
     try {
-      const variants = await ComponentStyleDAO.findComponentVariants(themeId, componentName);
+      const cacheKey = `component-variants-${componentName}`;
+      const cached = this.cache.get<string[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const variants = await ComponentStyleDAO.findComponentVariants(componentName);
       this.cache.set(cacheKey, variants);
       return variants;
     } catch (error) {
-      console.error('获取组件变体失败:', error);
+      console.error('ComponentStyleService.getComponentVariants error:', error);
       return [];
     }
   }
 
   /**
-   * 获取主题下的所有组件
+   * 获取所有组件
    */
-  async getThemeComponents(themeId: string): Promise<string[]> {
-    const cacheKey = `theme-components-${themeId}`;
-    
-    // 尝试从缓存获取
-    const cached = this.cache.get<string[]>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
+  async getAllComponents(): Promise<string[]> {
     try {
-      const components = await ComponentStyleDAO.findThemeComponents(themeId);
+      const cacheKey = 'all-components';
+      const cached = this.cache.get<string[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const components = await ComponentStyleDAO.findAllComponents();
       this.cache.set(cacheKey, components);
       return components;
     } catch (error) {
-      console.error('获取主题组件失败:', error);
+      console.error('ComponentStyleService.getAllComponents error:', error);
       return [];
     }
   }
@@ -494,16 +481,13 @@ export class ComponentStyleService {
   /**
    * 创建组件样式
    */
-  async createComponentStyle(componentStyle: ComponentStyleInsert): Promise<string> {
+  async createComponentStyle(componentStyle: UiConfigInsert): Promise<string> {
     try {
       const styleId = await ComponentStyleDAO.createComponentStyle(componentStyle);
-      
-      // 清除相关缓存
-      this.clearComponentCache(componentStyle.theme_id, componentStyle.component_name);
-      
+      this.clearCache();
       return styleId;
     } catch (error) {
-      console.error('创建组件样式失败:', error);
+      console.error('ComponentStyleService.createComponentStyle error:', error);
       throw error;
     }
   }
@@ -511,22 +495,19 @@ export class ComponentStyleService {
   /**
    * 更新组件样式
    */
-  async updateComponentStyle(id: string, updates: ComponentStyleUpdate): Promise<ComponentStyle> {
+  async updateComponentStyle(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
     try {
       const updatedStyle = await ComponentStyleDAO.updateComponentStyle(id, updates);
+      this.clearCache();
       
-      // 清除相关缓存
-      this.clearComponentCache(updatedStyle.theme_id, updatedStyle.component_name);
-      
-      // 通知监听器
-      if (updatedStyle.is_active) {
-        const configuration = await this.getComponentStyles(updatedStyle.theme_id, updatedStyle.component_name);
-        this.notifyComponentStyleUpdate(updatedStyle.component_name, configuration);
+      if (updatedStyle.component_type) {
+        const styles = await this.getComponentStyles(updatedStyle.component_type);
+        this.notifyComponentStyleUpdate(updatedStyle.component_type, styles);
       }
       
       return updatedStyle;
     } catch (error) {
-      console.error('更新组件样式失败:', error);
+      console.error('ComponentStyleService.updateComponentStyle error:', error);
       throw error;
     }
   }
@@ -536,32 +517,31 @@ export class ComponentStyleService {
    */
   async deleteComponentStyle(id: string): Promise<void> {
     try {
-      // 先获取样式信息用于清除缓存
+      // 先获取样式信息用于通知
       const style = await ComponentStyleDAO.findComponentStyleById(id);
       
       await ComponentStyleDAO.deleteComponentStyle(id);
+      this.clearCache();
       
-      // 清除相关缓存
-      if (style) {
-        this.clearComponentCache(style.theme_id, style.component_name);
+      if (style?.component_type) {
+        const styles = await this.getComponentStyles(style.component_type);
+        this.notifyComponentStyleUpdate(style.component_type, styles);
       }
     } catch (error) {
-      console.error('删除组件样式失败:', error);
+      console.error('ComponentStyleService.deleteComponentStyle error:', error);
       throw error;
     }
   }
 
   /**
-   * 批量更新组件样式排序
+   * 更新组件样式排序
    */
   async updateComponentStylesOrder(updates: { id: string; sort_order: number }[]): Promise<void> {
     try {
       await ComponentStyleDAO.updateComponentStylesOrder(updates);
-      
-      // 清除所有组件样式缓存
-      this.cache.clear();
+      this.clearCache();
     } catch (error) {
-      console.error('更新组件样式排序失败:', error);
+      console.error('ComponentStyleService.updateComponentStylesOrder error:', error);
       throw error;
     }
   }
@@ -569,16 +549,19 @@ export class ComponentStyleService {
   /**
    * 切换组件样式激活状态
    */
-  async toggleComponentStyleActive(id: string, isActive: boolean): Promise<ComponentStyle> {
+  async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UiConfig> {
     try {
       const updatedStyle = await ComponentStyleDAO.toggleComponentStyleActive(id, isActive);
+      this.clearCache();
       
-      // 清除相关缓存
-      this.clearComponentCache(updatedStyle.theme_id, updatedStyle.component_name);
+      if (updatedStyle.component_type) {
+        const styles = await this.getComponentStyles(updatedStyle.component_type);
+        this.notifyComponentStyleUpdate(updatedStyle.component_type, styles);
+      }
       
       return updatedStyle;
     } catch (error) {
-      console.error('切换组件样式状态失败:', error);
+      console.error('ComponentStyleService.toggleComponentStyleActive error:', error);
       throw error;
     }
   }
@@ -587,47 +570,44 @@ export class ComponentStyleService {
    * 生成CSS样式字符串
    */
   generateCSSStyles(styles: ComponentStyleConfiguration): string {
-    const cssRules: string[] = [];
+    let cssString = '';
     
     // 基础样式
     if (styles.base) {
-      const baseStyles = this.objectToCSSProperties(styles.base);
-      if (baseStyles) {
-        cssRules.push(baseStyles);
-      }
+      cssString += this.objectToCSSProperties(styles.base);
     }
     
     // 伪类样式
-    const pseudoClasses = ['hover', 'active', 'focus', 'disabled', 'loading'];
-    pseudoClasses.forEach(pseudo => {
-      if (styles[pseudo]) {
-        const styleObj = styles[pseudo] as { [key: string]: string };
-        const pseudoStyles = this.objectToCSSProperties(styleObj || {});
-        if (pseudoStyles) {
-          cssRules.push(`&:${pseudo} { ${pseudoStyles} }`);
-        }
-      }
-    });
+    if (styles.hover) {
+      cssString += '&:hover { ' + this.objectToCSSProperties(styles.hover) + ' }';
+    }
+    
+    if (styles.active) {
+      cssString += '&:active { ' + this.objectToCSSProperties(styles.active) + ' }';
+    }
+    
+    if (styles.focus) {
+      cssString += '&:focus { ' + this.objectToCSSProperties(styles.focus) + ' }';
+    }
+    
+    if (styles.disabled) {
+      cssString += '&:disabled { ' + this.objectToCSSProperties(styles.disabled) + ' }';
+    }
     
     // 响应式样式
     if (styles.responsive) {
-      const breakpoints = {
-        mobile: '@media (max-width: 768px)',
-        tablet: '@media (min-width: 769px) and (max-width: 1024px)',
-        desktop: '@media (min-width: 1025px)'
-      };
-      
-      Object.entries(styles.responsive).forEach(([breakpoint, breakpointStyles]) => {
-        if (breakpointStyles && breakpoints[breakpoint as keyof typeof breakpoints]) {
-          const responsiveStyles = this.objectToCSSProperties(breakpointStyles);
-          if (responsiveStyles) {
-            cssRules.push(`${breakpoints[breakpoint as keyof typeof breakpoints]} { ${responsiveStyles} }`);
-          }
-        }
-      });
+      if (styles.responsive.mobile) {
+        cssString += '@media (max-width: 768px) { ' + this.objectToCSSProperties(styles.responsive.mobile) + ' }';
+      }
+      if (styles.responsive.tablet) {
+        cssString += '@media (min-width: 769px) and (max-width: 1024px) { ' + this.objectToCSSProperties(styles.responsive.tablet) + ' }';
+      }
+      if (styles.responsive.desktop) {
+        cssString += '@media (min-width: 1025px) { ' + this.objectToCSSProperties(styles.responsive.desktop) + ' }';
+      }
     }
     
-    return cssRules.join(' ');
+    return cssString;
   }
 
   /**
@@ -649,63 +629,71 @@ export class ComponentStyleService {
   }
 
   /**
-   * 清除所有缓存
+   * 清除缓存
    */
   clearCache(): void {
     this.cache.clear();
   }
 
   /**
-   * 清除指定组件的缓存
+   * 清除特定组件缓存
    */
-  private clearComponentCache(themeId: string, componentName: string): void {
-    const patterns = [
-      `component-styles-${themeId}-${componentName}`,
-      `component-variants-${themeId}-${componentName}`,
-      `theme-components-${themeId}`
-    ];
+  private clearComponentCache(componentName: string): void {
+    const keysToDelete: string[] = [];
     
-    patterns.forEach(pattern => {
-      this.cache.clear(pattern);
-    });
-    
-    // 清除该组件所有变体的缓存
+    // 找到所有相关的缓存键
     for (const [key] of this.cache['cache']) {
-      if (key.startsWith(`variant-styles-${themeId}-${componentName}-`)) {
-        this.cache.clear(key);
+      if (key.includes(componentName)) {
+        keysToDelete.push(key);
       }
     }
+    
+    // 删除相关缓存
+    keysToDelete.forEach(key => {
+      this.cache.clear(key);
+    });
   }
 
   /**
-   * 合并组件样式配置
+   * 合并组件样式
    */
-  private mergeComponentStyles(componentStyles: ComponentStyle[]): ComponentStyleConfiguration {
-    const configuration: ComponentStyleConfiguration = {};
+  private mergeComponentStyles(componentStyles: UiConfig[]): ComponentStyleConfiguration {
+    const mergedStyles: ComponentStyleConfiguration = {};
     
     componentStyles.forEach(style => {
-      try {
-        const styleData = this.parseStyleData(style.style_data);
-        
-        if (style.variant_name) {
-          // 变体样式
-          if (!configuration.variants) {
-            configuration.variants = {};
-          }
-          if (!configuration.variants[style.variant_name]) {
-            configuration.variants[style.variant_name] = {};
-          }
-          Object.assign(configuration.variants[style.variant_name], styleData);
-        } else {
-          // 基础样式
-          Object.assign(configuration, styleData);
+      const styleData = this.parseStyleData(style.config_data);
+      
+      // 合并基础样式
+      if (styleData.base) {
+        mergedStyles.base = { ...mergedStyles.base, ...styleData.base };
+      }
+      
+      // 合并伪类样式
+      ['hover', 'active', 'focus', 'disabled', 'loading'].forEach(state => {
+        if (styleData[state]) {
+          mergedStyles[state as keyof ComponentStyleConfiguration] = {
+            ...mergedStyles[state as keyof ComponentStyleConfiguration],
+            ...styleData[state]
+          };
         }
-      } catch (error) {
-        console.error('解析组件样式数据失败:', error, style);
+      });
+      
+      // 合并变体样式
+      if (styleData.variants) {
+        mergedStyles.variants = { ...mergedStyles.variants, ...styleData.variants };
+      }
+      
+      // 合并响应式样式
+      if (styleData.responsive) {
+        mergedStyles.responsive = {
+          mobile: { ...mergedStyles.responsive?.mobile, ...styleData.responsive.mobile },
+          tablet: { ...mergedStyles.responsive?.tablet, ...styleData.responsive.tablet },
+          desktop: { ...mergedStyles.responsive?.desktop, ...styleData.responsive.desktop }
+        };
       }
     });
     
-    return configuration;
+    return mergedStyles;
   }
 
   /**
@@ -716,7 +704,10 @@ export class ComponentStyleService {
       if (typeof styleData === 'string') {
         return JSON.parse(styleData);
       }
-      return (styleData || {}) as Record<string, unknown>;
+      if (typeof styleData === 'object' && styleData !== null) {
+        return styleData as Record<string, unknown>;
+      }
+      return {};
     } catch (error) {
       console.error('解析样式数据失败:', error);
       return {};
@@ -727,68 +718,62 @@ export class ComponentStyleService {
    * 获取默认组件样式
    */
   private getDefaultComponentStyles(componentName: string): ComponentStyleConfiguration {
-    const defaultStyles: { [key: string]: ComponentStyleConfiguration } = {
-      Button: {
+    const defaultStyles: Record<string, ComponentStyleConfiguration> = {
+      button: {
         base: {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '8px 16px',
-          border: '1px solid #d9d9d9',
-          borderRadius: '6px',
-          background: '#ffffff',
-          color: '#262626',
-          fontSize: '14px',
-          fontWeight: '400',
-          lineHeight: '1.5',
+          padding: '0.5rem 1rem',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          borderRadius: '0.375rem',
+          border: '1px solid transparent',
           cursor: 'pointer',
-          transition: 'all 0.2s ease'
+          transition: 'all 0.2s ease-in-out',
+          background: '#3b82f6',
+          color: '#ffffff'
         },
         hover: {
-          background: '#f5f5f5',
-          borderColor: '#4096ff'
+          background: '#2563eb'
         },
         active: {
-          background: '#e6f4ff',
-          borderColor: '#1677ff'
+          background: '#1d4ed8'
         },
         disabled: {
-          background: '#f5f5f5',
-          color: '#bfbfbf',
-          cursor: 'not-allowed',
-          opacity: '0.6'
-        }
-      },
-      Input: {
-        base: {
-          display: 'block',
-          width: '100%',
-          padding: '8px 12px',
-          border: '1px solid #d9d9d9',
-          borderRadius: '6px',
-          background: '#ffffff',
-          color: '#262626',
-          fontSize: '14px',
-          lineHeight: '1.5',
-          transition: 'all 0.2s ease'
-        },
-        focus: {
-          borderColor: '#4096ff',
-          boxShadow: '0 0 0 2px rgba(22, 119, 255, 0.1)'
-        },
-        disabled: {
-          background: '#f5f5f5',
-          color: '#bfbfbf',
+          opacity: '0.5',
           cursor: 'not-allowed'
         }
       },
-      Card: {
+      input: {
+        base: {
+          display: 'block',
+          width: '100%',
+          padding: '0.5rem 0.75rem',
+          fontSize: '0.875rem',
+          border: '1px solid #d1d5db',
+          borderRadius: '0.375rem',
+          background: '#ffffff',
+          color: '#1f2937'
+        },
+        focus: {
+          outline: 'none',
+          borderColor: '#3b82f6',
+          boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)'
+        },
+        disabled: {
+          background: '#f9fafb',
+          color: '#6b7280',
+          cursor: 'not-allowed'
+        }
+      },
+      card: {
         base: {
           background: '#ffffff',
-          border: '1px solid #f0f0f0',
-          borderRadius: '8px',
-          padding: '16px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+          border: '1px solid #e5e7eb',
+          borderRadius: '0.5rem',
+          padding: '1.5rem',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
         }
       }
     };
@@ -821,7 +806,7 @@ export class ComponentStyleService {
       try {
         listener(componentName, styles);
       } catch (error) {
-        console.error('组件样式更新监听器执行失败:', error);
+        console.error('Component style listener error:', error);
       }
     });
   }
@@ -829,6 +814,3 @@ export class ComponentStyleService {
 
 // 导出单例实例
 export const componentStyleService = ComponentStyleService.getInstance();
-
-// 导出类型
-// export type { ComponentStyleConfiguration }; // 已在接口定义处导出

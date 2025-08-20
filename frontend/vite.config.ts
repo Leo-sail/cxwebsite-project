@@ -49,7 +49,6 @@ export default defineConfig({
           ],
           // 内容管理分割
           content: [
-            './src/components/ContentManagement/ContentEditor.tsx',
             './src/components/RichTextEditor.tsx'
           ]
         },

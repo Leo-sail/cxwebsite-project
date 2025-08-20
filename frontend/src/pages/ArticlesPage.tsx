@@ -11,6 +11,7 @@ import Pagination from '../components/Pagination';
 import { AnimatedContainer } from '../components/animation/AnimatedContainer';
 import { GradientBackground } from '../components/ui/GradientBackground';
 import { SearchInput } from '../components/ui/SearchInput';
+import { useText } from '../hooks/useText';
 import {
   DocumentTextIcon,
   NewspaperIcon,
@@ -33,6 +34,17 @@ const ArticlesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest');
   const pageSize = 12;
+
+  // 获取页面文字内容
+  const pageTitle = useText('articles_page_title', 'articles');
+  const pageSubtitle = useText('articles_page_subtitle', 'articles');
+  const seoTitle = useText('articles_seo_title', 'articles');
+  const seoDescription = useText('articles_seo_description', 'articles');
+  
+  // 标签文字
+  const tagProfessional = useText('tag_professional', 'articles') || '专业资讯';
+  const tagHot = useText('tag_hot', 'articles') || '热门话题';
+  const tagSelected = useText('tag_selected', 'articles') || '精选内容';
 
   // 获取文章数据
   const { data: articlesData, isLoading, error } = useQuery({
@@ -95,8 +107,8 @@ const ArticlesPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="考研资讯 - 考研教育平台"
-        description="最新的考研资讯、备考指南、学习方法和经验分享。助您掌握考研动态，提升备考效率。"
+        title={seoTitle || "考研资讯 - 考研教育平台"}
+        description={seoDescription || "最新的考研资讯、备考指南、学习方法和经验分享。助您掌握考研动态，提升备考效率。"}
         keywords="考研资讯,备考指南,学习方法,考研经验,考研动态"
       />
 
@@ -123,24 +135,24 @@ const ArticlesPage: React.FC = () => {
                   <NewspaperIcon className="w-10 h-10 text-white drop-shadow-lg" />
                 </div>
                 <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-2xl">
-                  考研资讯
+                  {pageTitle || "考研资讯"}
                   <span className="block text-2xl font-normal text-white/90 mt-2 drop-shadow-lg">Knowledge Hub</span>
                 </h1>
                 <p className="text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
-                  最新的考研动态、备考指南和学习方法，助您掌握考研资讯，提升备考效率
+                  {pageSubtitle || "最新的考研动态、备考指南和学习方法，助您掌握考研资讯，提升备考效率"}
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-8 text-white/90">
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
                     <DocumentTextIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium">专业资讯</span>
+                    <span className="text-sm font-medium">{tagProfessional}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
                     <FireIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium">热门话题</span>
+                    <span className="text-sm font-medium">{tagHot}</span>
                   </div>
                   <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
                     <SparklesIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium">精选内容</span>
+                    <span className="text-sm font-medium">{tagSelected}</span>
                   </div>
                 </div>
               </AnimatedContainer>

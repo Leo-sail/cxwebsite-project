@@ -2,6 +2,7 @@
  * 网站底部组件
  */
 import { Link } from 'react-router-dom';
+import { useText } from '../hooks/useText';
 
 /**
  * 快速链接
@@ -27,6 +28,13 @@ const serviceLinks = [
  */
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  
+  // 获取Footer文字内容
+  const footerPhone = useText('footer_phone', 'footer');
+  const footerEmail = useText('footer_email', 'footer');
+  const footerAddress = useText('footer_address', 'footer');
+  const footerTitle = useText('footer_title', 'footer');
+  const footerDescription = useText('footer_description', 'footer');
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -36,10 +44,10 @@ const Footer = () => {
           <div className="space-y-8 xl:col-span-1">
             <div>
               <span className="text-2xl font-bold text-white">
-                {import.meta.env.VITE_APP_TITLE || '教育平台'}
+                {footerTitle || import.meta.env.VITE_APP_TITLE || '教育平台'}
               </span>
               <p className="mt-4 text-gray-300 text-base">
-                {import.meta.env.VITE_APP_DESCRIPTION || '专业的考研培训机构，助您实现名校梦想'}
+                {footerDescription || import.meta.env.VITE_APP_DESCRIPTION || '专业的考研培训机构，助您实现名校梦想'}
               </p>
               <div className="flex justify-center space-x-6 mt-6">
                 {/* 社交媒体链接 */}
@@ -124,13 +132,13 @@ const Footer = () => {
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li className="text-base text-gray-300">
-                    <span className="block">电话：400-123-4567</span>
+                    <span className="block">{footerPhone || "电话：400-123-4567"}</span>
                   </li>
                   <li className="text-base text-gray-300">
-                    <span className="block">邮箱：info@example.com</span>
+                    <span className="block">{footerEmail || "邮箱：info@yourcompany.com"}</span>
                   </li>
                   <li className="text-base text-gray-300">
-                    <span className="block">地址：北京市朝阳区示例街道123号</span>
+                    <span className="block">{footerAddress || "地址：北京市朝阳区示例街道123号"}</span>
                   </li>
                 </ul>
               </div>
@@ -150,7 +158,7 @@ const Footer = () => {
               </Link>
             </div>
             <p className="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
-              &copy; {currentYear} {import.meta.env.VITE_APP_TITLE || '教育平台'}. 保留所有权利.
+              &copy; {currentYear} {footerTitle || import.meta.env.VITE_APP_TITLE || '教育平台'}. 保留所有权利.
             </p>
           </div>
         </div>

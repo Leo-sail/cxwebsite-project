@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { ContentData, StyleData, PositionData } from '../../../types/content';
+import { isValidVideoSrc, logMediaValidation } from '../../../utils/mediaValidation';
 
 interface VideoRendererProps {
   /** 内容ID */
@@ -203,8 +204,16 @@ export const VideoRenderer: React.FC<VideoRendererProps> = ({
     );
   }
 
+  // 检查视频src是否有效
+  const hasValidSrc = isValidVideoSrc(data.src);
+  
+  // 在开发环境记录无效src的情况
+  if (!hasValidSrc && data.src) {
+    logMediaValidation('Invalid video src detected', { contentId, src: data.src });
+  }
+
   // 渲染错误状态或空状态
-  if (hasError || !data.src) {
+  if (hasError || !hasValidSrc) {
     return (
       <div 
         className={`video-renderer error ${isEditMode ? 'editable' : ''} ${className}`}
@@ -225,17 +234,18 @@ export const VideoRenderer: React.FC<VideoRendererProps> = ({
     );
   }
 
-  // 渲染正常视频
+  // 渲染正常视频（此时已确保src有效）
   return (
     <div 
       className={`video-renderer ${isEditMode ? 'editable' : ''} ${className}`}
       style={getContainerStyle()}
       data-content-id={contentId}
       data-content-type="video"
+      
     >
       <video
         ref={videoRef}
-        src={data.src}
+        src={data.src} // 此时已通过isValidVideoSrc验证，确保不是空字符串
         style={getVideoStyle()}
         controls={data.metadata?.controls !== false}
         autoPlay={data.metadata?.autoPlay === true}

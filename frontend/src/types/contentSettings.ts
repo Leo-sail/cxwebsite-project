@@ -15,39 +15,41 @@ export enum ContentTableType {
 }
 
 // 虚拟表名到实际数据库表名的映射
+// 注意：SITE_CONTENT 和 PAGE_SECTIONS 原本映射到已删除的 component_text_storage 表
+// 现在映射到 ui_configs 表作为替代方案
 export const TABLE_MAPPING: Record<ContentTableType, keyof Database['public']['Tables']> = {
-  [ContentTableType.SITE_CONTENT]: 'site_content',
+  [ContentTableType.SITE_CONTENT]: 'ui_configs',
   [ContentTableType.NAVIGATION_ITEMS]: 'page_configs',
   [ContentTableType.UI_TEXT_ELEMENTS]: 'ui_configs',
-  [ContentTableType.PAGE_SECTIONS]: 'component_instances',
-  [ContentTableType.SEO_METADATA]: 'theme_configs'
+  [ContentTableType.PAGE_SECTIONS]: 'ui_configs',
+  [ContentTableType.SEO_METADATA]: 'page_configs'
 };
 
 // 实际数据库表类型映射
 export type TableData = {
-  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Row'];
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['ui_configs']['Row'];
   [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Row'];
   [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Row'];
-  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Row'];
-  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Row'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['ui_configs']['Row'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['page_configs']['Row'];
 };
 
 // 插入数据类型映射
 export type TableInsertData = {
-  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Insert'];
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['ui_configs']['Insert'];
   [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Insert'];
   [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Insert'];
-  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Insert'];
-  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Insert'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['ui_configs']['Insert'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['page_configs']['Insert'];
 };
 
 // 更新数据类型映射
 export type TableUpdateData = {
-  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['site_content']['Update'];
+  [ContentTableType.SITE_CONTENT]: Database['public']['Tables']['ui_configs']['Update'];
   [ContentTableType.NAVIGATION_ITEMS]: Database['public']['Tables']['page_configs']['Update'];
   [ContentTableType.UI_TEXT_ELEMENTS]: Database['public']['Tables']['ui_configs']['Update'];
-  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['component_instances']['Update'];
-  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['theme_configs']['Update'];
+  [ContentTableType.PAGE_SECTIONS]: Database['public']['Tables']['ui_configs']['Update'];
+  [ContentTableType.SEO_METADATA]: Database['public']['Tables']['page_configs']['Update'];
 };
 
 // 分页参数接口

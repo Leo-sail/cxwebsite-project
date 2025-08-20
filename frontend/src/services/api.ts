@@ -9,12 +9,20 @@ import type {
   Article,
   PageConfig,
   MediaFile,
+  ComponentText,
   CourseFormData,
   TeacherFormData,
   StudentCaseFormData,
-  ArticleFormData
+  ArticleFormData,
+  ComponentTextFormData
 } from '../types';
+import type {
+  ComponentTextStorage,
+  ComponentTextStorageInsert,
+  ComponentTextStorageUpdate
+} from '../types/database';
 import type { Json, UIConfig, UIConfigInsert, UIConfigUpdate } from '../types/database';
+
 
 /**
  * 通用错误处理
@@ -820,5 +828,246 @@ export const uiConfigApi = {
     }
     
     return results.map(result => result.data).filter(Boolean) as UIConfig[];
+  }
+};
+
+/**
+ * 组件文字内容API
+ */
+export const componentTextApi = {
+  /**
+   * 获取所有组件文字内容
+   */
+  async getAll(): Promise<ComponentText[]> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*')
+      .order('key', { ascending: true });
+
+    if (error) handleError(error);
+    return data || [];
+  },
+
+  /**
+   * 根据ID获取组件文字内容
+   */
+  async getById(id: string): Promise<ComponentText | null> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      handleError(error);
+    }
+    return data;
+  },
+
+  /**
+   * 根据key获取组件文字内容
+   */
+  async getByKey(key: string, area?: string): Promise<ComponentText | null> {
+    let query = supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*')
+      .eq('key', key);
+
+    if (area) {
+      query = query.eq('area', area);
+    } else {
+      query = query.is('area', null);
+    }
+
+    const { data, error } = await query.single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      handleError(error);
+    }
+    return data;
+  },
+
+  /**
+   * 根据区域获取组件文字内容
+   */
+  async getByArea(area: string): Promise<ComponentText[]> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*')
+      .eq('area', area)
+      .order('key', { ascending: true });
+
+    if (error) handleError(error);
+    return data || [];
+  },
+
+  /**
+   * 创建组件文字内容
+   */
+  async create(textData: ComponentTextFormData): Promise<ComponentText> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .insert(textData)
+      .select()
+      .single();
+
+    if (error) handleError(error);
+    return data;
+  },
+
+  /**
+   * 更新组件文字内容
+   */
+  async update(id: string, textData: Partial<ComponentTextFormData>): Promise<ComponentText> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .update(textData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) handleError(error);
+    return data;
+  },
+
+  /**
+   * 根据key更新组件文字内容
+   */
+  async updateByKey(key: string, area: string | undefined, textData: Partial<ComponentTextFormData>): Promise<ComponentText> {
+    let query = supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .update(textData)
+      .eq('key', key);
+
+    if (area) {
+      query = query.eq('area', area);
+    } else {
+      query = query.is('area', null);
+    }
+
+    const { data, error } = await query.select().single();
+
+    if (error) handleError(error);
+    return data;
+  },
+
+  /**
+   * 删除组件文字内容
+   */
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .delete()
+      .eq('id', id);
+
+    if (error) handleError(error);
+  },
+
+  /**
+   * 根据key删除组件文字内容
+   */
+  async deleteByKey(key: string, area?: string): Promise<void> {
+    let query = supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .delete()
+      .eq('key', key);
+
+    if (area) {
+      query = query.eq('area', area);
+    } else {
+      query = query.is('area', null);
+    }
+
+    const { error } = await query;
+
+    if (error) handleError(error);
+  },
+
+  /**
+   * 获取所有区域列表
+   */
+  async getAllAreas(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('area')
+      .not('area', 'is', null);
+
+    if (error) handleError(error);
+    
+    // 去重并排序
+    const areas = [...new Set(data?.map(item => item.area).filter(Boolean))] as string[];
+    return areas.sort();
+  },
+
+  /**
+   * 按区域分组获取所有组件文字内容
+   */
+  async getAllGroupedByArea(): Promise<{ area: string; texts: ComponentText[] }[]> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*')
+      .order('area', { ascending: true })
+      .order('key', { ascending: true });
+
+    if (error) handleError(error);
+    
+    if (!data) return [];
+
+    // 按区域分组
+    const grouped = data.reduce((acc, item) => {
+      const area = item.area || '未分组';
+      if (!acc[area]) {
+        acc[area] = [];
+      }
+      acc[area].push(item);
+      return acc;
+    }, {} as Record<string, ComponentText[]>);
+
+    // 转换为数组格式
+    return Object.entries(grouped).map(([area, texts]) => ({
+      area,
+      texts
+    }));
+  },
+
+  /**
+   * 批量创建或更新组件文字内容
+   */
+  async batchUpsert(textDataList: ComponentTextFormData[]): Promise<ComponentText[]> {
+    const { data, error } = await supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .upsert(textDataList, {
+        onConflict: 'key,area',
+        ignoreDuplicates: false
+      })
+      .select();
+
+    if (error) handleError(error);
+    return data || [];
+  },
+
+  /**
+   * 搜索组件文字内容
+   */
+  async search(searchTerm: string, area?: string): Promise<ComponentText[]> {
+    let query = supabase
+      .from(TABLES.COMPONENT_TEXT_STORAGE)
+      .select('*');
+
+    if (area) {
+      query = query.eq('area', area);
+    }
+
+    // 搜索key、content或description字段
+    query = query.or(`key.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    
+    query = query.order('key', { ascending: true });
+
+    const { data, error } = await query;
+
+    if (error) handleError(error);
+    return data || [];
   }
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '../../utils';
 import { useResponsive } from '../../hooks/useResponsive';
 import { useTeacherAvatarSize } from '../../hooks/useUIConfig';
+import { generateSizeClasses } from '../../utils/pixelToTailwind';
 // import { LazyImage } from '../LazyWrapper/LazyImage'; // LazyImage组件暂不可用
 
 /**
@@ -75,9 +76,8 @@ export const TeacherAvatar: React.FC<TeacherAvatarProps> = ({
       return defaultSizeClass;
     }
     
-    return responsive.isMobile 
-      ? `${sizeConfig.mobile.width} ${sizeConfig.mobile.height}`
-      : `${sizeConfig.desktop.width} ${sizeConfig.desktop.height}`;
+    const deviceConfig = responsive.isMobile ? sizeConfig.mobile : sizeConfig.desktop;
+    return generateSizeClasses(deviceConfig.width, deviceConfig.height);
   };
 
   // 获取边框样式

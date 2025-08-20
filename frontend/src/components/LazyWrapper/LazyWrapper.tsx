@@ -14,7 +14,6 @@ interface LazyWrapperProps {
   onLoad?: () => void;
   onError?: (error: Error) => void;
   className?: string;
-  testId?: string;
 }
 
 interface LazyWrapperState {
@@ -93,7 +92,7 @@ class LazyWrapper extends React.Component<LazyWrapperProps, LazyWrapperState> {
 
   componentDidMount() {
     this.loadStartTime = performance.now();
-    this.componentName = this.props.testId || 'LazyComponent';
+    this.componentName = 'LazyComponent';
   }
 
   componentDidUpdate(_prevProps: LazyWrapperProps, prevState: LazyWrapperState) {
@@ -119,12 +118,12 @@ class LazyWrapper extends React.Component<LazyWrapperProps, LazyWrapperState> {
   };
 
   render() {
-    const { children, fallback: Fallback = DefaultFallback, errorFallback: ErrorFallback = DefaultErrorFallback, className, testId } = this.props;
+    const { children, fallback: Fallback = DefaultFallback, errorFallback: ErrorFallback = DefaultErrorFallback, className } = this.props;
     const { hasError, error } = this.state;
 
     if (hasError && error) {
       return (
-        <div className={className} data-testid={`${testId}-error`}>
+        <div className={className}>
           <ErrorFallback error={error} retry={this.handleRetry} />
         </div>
       );
@@ -132,7 +131,7 @@ class LazyWrapper extends React.Component<LazyWrapperProps, LazyWrapperState> {
 
     return (
       <Suspense fallback={<Fallback />}>
-        <div className={className} data-testid={testId}>
+        <div className={className}>
           {children}
         </div>
       </Suspense>

@@ -37,15 +37,11 @@ const AdminCourses = createLazyComponent(() => import('../admin/pages/Courses'))
 const AdminTeachers = createLazyComponent(() => import('../admin/pages/Teachers'));
 const AdminCases = createLazyComponent(() => import('../admin/pages/Cases'));
 const AdminArticles = createLazyComponent(() => import('../admin/pages/Articles'));
-const AdminPageConfig = createLazyComponent(() => import('../admin/pages/PageConfig'));
 const AdminMedia = createLazyComponent(() => import('../admin/pages/Media'));
-const AdminThemeManagement = createLazyComponent(() => import('../admin/pages/ThemeManagement'));
-const AdminStyleConfiguration = createLazyComponent(() => import('../admin/pages/StyleConfiguration'));
-const AdminUIConfigManager = createLazyComponent(() => import('../admin/pages/UIConfigManager'));
+const AdminContentManagement = createLazyComponent(() => import('../admin/pages/ContentManagement'));
 const AdminLogin = createLazyComponent(() => import('../admin/pages/Login'), { preload: true });
-const InfoManagementContainer = createLazyComponent(() => import('../components/InfoManagement/InfoManagementContainer'));
-
-const AdminPage = createLazyComponent(() => import('../pages/AdminPage'));
+const DatabaseManager = createLazyComponent(() => import('../components/DatabaseManager'));
+// const DynamicContentDemo = createLazyComponent(() => import('../pages/DynamicContentDemo'));
 
 const PermissionConfig = createLazyComponent(() => import('../pages/admin/PermissionConfig'));
 const UnauthorizedPage = createLazyComponent(() => import('../pages/UnauthorizedPage'));
@@ -261,13 +257,13 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: 'page-config',
+        path: 'content-management',
         element: (
-          <SuperAdminRoute>
+          <EditorRoute>
             <Suspense fallback={<LoadingSpinner />}>
-              <AdminPageConfig />
+              <AdminContentManagement />
             </Suspense>
-          </SuperAdminRoute>
+          </EditorRoute>
         )
       },
       {
@@ -280,37 +276,7 @@ export const router = createBrowserRouter([
           </EditorRoute>
         )
       },
-      {
-        path: 'theme-management',
-        element: (
-          <SuperAdminRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <AdminThemeManagement />
-            </Suspense>
-          </SuperAdminRoute>
-        )
-      },
-      {
-        path: 'style-configuration',
-        element: (
-          <SuperAdminRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <AdminStyleConfiguration />
-            </Suspense>
-          </SuperAdminRoute>
-        )
-      },
 
-      {
-        path: 'ui-config-manager',
-        element: (
-          <SuperAdminRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <AdminUIConfigManager />
-            </Suspense>
-          </SuperAdminRoute>
-        )
-      },
 
 
       {
@@ -324,25 +290,23 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: 'contact-management',
+        path: 'database-manager',
         element: (
-          <AdminRoute>
+          <SuperAdminRoute>
             <Suspense fallback={<LoadingSpinner />}>
-              <AdminPage />
+              <DatabaseManager />
             </Suspense>
-          </AdminRoute>
+          </SuperAdminRoute>
         )
       },
-      {
-        path: 'content-settings',
-        element: (
-          <AdminRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <InfoManagementContainer />
-            </Suspense>
-          </AdminRoute>
-        )
-      },
+      // {
+      //   path: 'dynamic-content-demo',
+      //   element: (
+      
+      //   )
+      // }
+
+
 
 
     ]

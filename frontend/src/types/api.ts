@@ -450,3 +450,27 @@ export interface RatingRequest {
   target_type: 'course' | 'teacher';
   target_id: string;
 }
+
+// 组件文字内容相关类型
+export interface ComponentText extends BaseEntity {
+  key: string;
+  area: string | null;
+  content: string;
+  description: string | null;
+}
+
+// 组件文字内容表单数据类型
+export interface ComponentTextFormData {
+  key: string;
+  area?: string | null;
+  content: string;
+  description?: string | null;
+}
+
+// 组件文字内容创建/更新请求
+export interface ComponentTextRequest {
+  key: string;
+  area?: string | null;
+  content: string;
+  description?: string | null;
+}

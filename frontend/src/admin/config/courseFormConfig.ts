@@ -91,7 +91,7 @@ export const COURSE_FORM_FIELDS: FormField[] = [
     label: '课程图片URL',
     type: 'url',
     required: false,
-    placeholder: 'https://example.com/course-image.jpg',
+    placeholder: 'https://yoursite.com/course-image.jpg',
     rules: [
       { pattern: /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i, message: '请输入有效的图片URL（支持jpg、png、gif、webp格式）' }
     ],

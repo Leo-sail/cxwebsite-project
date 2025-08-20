@@ -22,7 +22,10 @@ export type {
   Comment,
   CommentRequest,
   Rating,
-  RatingRequest
+  RatingRequest,
+  ComponentText,
+  ComponentTextFormData,
+  ComponentTextRequest
 } from './api';
 
 // 导出数据库类型

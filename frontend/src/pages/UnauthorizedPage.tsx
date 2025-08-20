@@ -78,7 +78,7 @@ const UnauthorizedPage: React.FC = () => {
     );
     
     // 打开邮件客户端（可以替换为实际的管理员邮箱）
-    window.location.href = `mailto:admin@example.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:admin@yourcompany.com?subject=${subject}&body=${body}`;
   };
 
   /**
@@ -302,7 +302,7 @@ export const UnauthorizedMessage: React.FC<{
                 const body = encodeURIComponent(
                   `用户: ${user.email}\n申请原因: `
                 );
-                window.location.href = `mailto:admin@example.com?subject=${subject}&body=${body}`;
+                window.location.href = `mailto:admin@yourcompany.com?subject=${subject}&body=${body}`;
               }}
               className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
