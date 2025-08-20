@@ -21,7 +21,12 @@
   "installCommand": "cd frontend && npm install",
   "framework": "vite",
   "env": {
-    "NODE_ENV": "production"
+    "VITE_SUPABASE_URL": "https://rtprnlyohcklthvynpjl.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0cHJubHlvaGNrbHRodnlucGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5OTg0NTUsImV4cCI6MjA3MDU3NDQ1NX0.c7RKP6RN0C6MA1NXoXxu9sS0GPOTF7V66a2XnojXlDI",
+    "VITE_APP_TITLE": "网站测试",
+    "VITE_APP_DESCRIPTION": "专业的在线教育平台",
+    "NODE_ENV": "production",
+    "VITE_ENV": "production"
   },
   "functions": {
     "frontend/dist/**": {
