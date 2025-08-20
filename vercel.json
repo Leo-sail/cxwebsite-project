@@ -1,21 +1,4 @@
 {
-  "version": 2,
-  "name": "网站测试",
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
-  ],
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "cd frontend && npm install",
@@ -27,11 +10,6 @@
     "VITE_APP_DESCRIPTION": "专业的在线教育平台",
     "NODE_ENV": "production",
     "VITE_ENV": "production"
-  },
-  "functions": {
-    "frontend/dist/**": {
-      "maxDuration": 30
-    }
   },
   "headers": [
     {
