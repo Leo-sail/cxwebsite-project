@@ -1,5 +1,3 @@
-import { Helmet } from 'react-helmet-async';
-
 interface SEOProps {
   /** 页面标题 */
   title?: string;
@@ -18,8 +16,9 @@ interface SEOProps {
 }
 
 /**
- * SEO组件
+ * SEO组件 - 使用React 19原生API
  * 用于设置页面的meta标签，优化搜索引擎收录
+ * 支持动态标题、meta标签、Open Graph、Twitter Cards和结构化数据
  */
 export function SEO({
   title,
@@ -34,10 +33,30 @@ export function SEO({
   const fullTitle = isHomePage ? siteTitle : title ? `${title} - ${siteTitle}` : siteTitle;
   const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
 
+  // 结构化数据
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    name: siteTitle,
+    description: description,
+    url: currentUrl,
+    logo: image,
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'CN',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+    },
+  };
+
   return (
-    <Helmet>
-      {/* 基础meta标签 */}
+    <>
+      {/* 页面标题 */}
       <title>{fullTitle}</title>
+      
+      {/* 基础meta标签 */}
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
       <meta name="author" content="考研培训机构" />
@@ -59,36 +78,26 @@ export function SEO({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
       
-      {/* 其他SEO标签 */}
+      {/* SEO优化标签 */}
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />
-      <link rel="canonical" href={currentUrl} />
       
       {/* 移动端优化 */}
       <meta name="format-detection" content="telephone=no" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       
+      {/* Canonical URL */}
+      <link rel="canonical" href={currentUrl} />
+      
       {/* 结构化数据 */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'EducationalOrganization',
-          name: siteTitle,
-          description: description,
-          url: currentUrl,
-          logo: image,
-          address: {
-            '@type': 'PostalAddress',
-            addressCountry: 'CN',
-          },
-          contactPoint: {
-            '@type': 'ContactPoint',
-            contactType: 'customer service',
-          },
-        })}
-      </script>
-    </Helmet>
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
+    </>
   );
 }
 
