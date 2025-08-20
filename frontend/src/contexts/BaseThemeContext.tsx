@@ -4,14 +4,14 @@
  */
 import React, { createContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { themeService, type ThemeConfiguration } from '../services/themeService';
-import type { ThemeConfig } from '../types/database';
+import type { UIConfig } from '../types/database';
 
 /**
  * 基础主题上下文类型
  */
 interface BaseThemeContextType {
   currentTheme: ThemeConfiguration | null;
-  availableThemes: ThemeConfig[];
+  availableThemes: UIConfig[];
   isLoading: boolean;
   error: string | null;
   switchTheme: (themeId: string, animated?: boolean) => Promise<void>;
@@ -28,6 +28,7 @@ interface BaseThemeContextType {
 const getDefaultTheme = (): ThemeConfiguration => {
   return {
     id: 'default',
+    name: 'Default Theme',
     colors: {
       primary: '#1677ff',
       secondary: '#722ed1',
@@ -102,7 +103,7 @@ export function BaseThemeProvider({
   enableLocalStorage = true
 }: BaseThemeProviderProps) {
   const [currentTheme, setCurrentTheme] = useState<ThemeConfiguration | null>(null);
-  const [availableThemes, setAvailableThemes] = useState<ThemeConfig[]>([]);
+  const [availableThemes, setAvailableThemes] = useState<UIConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

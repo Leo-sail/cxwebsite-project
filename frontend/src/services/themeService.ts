@@ -3,7 +3,7 @@
  * 提供主题管理的核心功能，基于ui_configs表实现
  */
 import { supabase } from '../lib/supabase';
-import type { UiConfig, UiConfigInsert, UiConfigUpdate } from '../types/database';
+import type { UIConfig, UIConfigInsert, UIConfigUpdate } from '../types/database';
 
 /**
  * 主题配置接口
@@ -145,7 +145,7 @@ export class ThemeDAO {
   /**
    * 获取活跃主题配置
    */
-  static async findActiveTheme(): Promise<UiConfig | null> {
+  static async findActiveTheme(): Promise<UIConfig | null> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -168,7 +168,7 @@ export class ThemeDAO {
   /**
    * 获取所有主题配置
    */
-  static async findAllThemes(): Promise<UiConfig[]> {
+  static async findAllThemes(): Promise<UIConfig[]> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -190,7 +190,7 @@ export class ThemeDAO {
   /**
    * 根据ID获取主题配置
    */
-  static async findThemeById(id: string): Promise<UiConfig | null> {
+  static async findThemeById(id: string): Promise<UIConfig | null> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -213,7 +213,7 @@ export class ThemeDAO {
   /**
    * 创建主题配置
    */
-  static async createTheme(theme: UiConfigInsert): Promise<string> {
+  static async createTheme(theme: UIConfigInsert): Promise<string> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -235,7 +235,7 @@ export class ThemeDAO {
   /**
    * 更新主题配置
    */
-  static async updateTheme(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
+  static async updateTheme(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -306,7 +306,7 @@ export class ThemeDAO {
   /**
    * 获取页面样式配置
    */
-  static async findPageStyles(pageName: string): Promise<UiConfig[]> {
+  static async findPageStyles(pageName: string): Promise<UIConfig[]> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -330,7 +330,7 @@ export class ThemeDAO {
   /**
    * 获取组件样式配置
    */
-  static async findComponentStyles(componentName: string): Promise<UiConfig[]> {
+  static async findComponentStyles(componentName: string): Promise<UIConfig[]> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -404,10 +404,10 @@ export class ThemeService {
   /**
    * 获取所有主题
    */
-  async getAllThemes(): Promise<UiConfig[]> {
+  async getAllThemes(): Promise<UIConfig[]> {
     try {
       const cacheKey = 'all-themes';
-      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      const cached = this.cache.get<UIConfig[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -424,10 +424,10 @@ export class ThemeService {
   /**
    * 根据ID获取主题
    */
-  async getThemeById(id: string): Promise<UiConfig | null> {
+  async getThemeById(id: string): Promise<UIConfig | null> {
     try {
       const cacheKey = `theme-${id}`;
-      const cached = this.cache.get<UiConfig>(cacheKey);
+      const cached = this.cache.get<UIConfig>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -446,7 +446,7 @@ export class ThemeService {
   /**
    * 创建主题
    */
-  async createTheme(themeData: UiConfigInsert): Promise<string> {
+  async createTheme(themeData: UIConfigInsert): Promise<string> {
     try {
       const themeId = await ThemeDAO.createTheme(themeData);
       this.clearCache();
@@ -460,7 +460,7 @@ export class ThemeService {
   /**
    * 更新主题
    */
-  async updateTheme(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
+  async updateTheme(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const updatedTheme = await ThemeDAO.updateTheme(id, updates);
       this.clearCache();
@@ -509,10 +509,10 @@ export class ThemeService {
   /**
    * 获取页面样式
    */
-  async getPageStyles(pageName: string): Promise<UiConfig[]> {
+  async getPageStyles(pageName: string): Promise<UIConfig[]> {
     try {
       const cacheKey = `page-styles-${pageName}`;
-      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      const cached = this.cache.get<UIConfig[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -529,10 +529,10 @@ export class ThemeService {
   /**
    * 获取组件样式
    */
-  async getComponentStyles(componentName: string): Promise<UiConfig[]> {
+  async getComponentStyles(componentName: string): Promise<UIConfig[]> {
     try {
       const cacheKey = `component-styles-${componentName}`;
-      const cached = this.cache.get<UiConfig[]>(cacheKey);
+      const cached = this.cache.get<UIConfig[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -586,8 +586,6 @@ export class ThemeService {
   parseThemeConfig(configData: unknown): ThemeConfiguration {
     if (typeof configData === 'object' && configData !== null) {
       return {
-        id: 'default',
-        name: 'Default Theme',
         ...this.getDefaultTheme(),
         ...(configData as Partial<ThemeConfiguration>)
       };

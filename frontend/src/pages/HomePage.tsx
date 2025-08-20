@@ -43,10 +43,10 @@ const HomePage = () => {
   const heroCtaConsult = useText('home_hero_cta_secondary', 'home');
   
   // 特色功能区域文字
-  const featuresTitle = useText('home_features_title', 'home');
+  // const featuresTitle = useText('home_features_title', 'home'); // Removed unused variable
   
   // 统计数据区域文字
-  const statsTitle = useText('home_stats_title', 'home');
+  // const statsTitle = useText('home_stats_title', 'home'); // Removed unused variable
   
   // 课程区域文字（使用硬编码文本，因为数据库中没有对应的key）
   const coursesTitle = '热门课程';

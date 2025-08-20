@@ -59,7 +59,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
   const handlePropsUpdate = useCallback((newProps: any) => {
     if (onUpdate) {
       onUpdate(instance.id, {
-        props_data: newProps,
+        config_data: newProps,
         updated_at: new Date().toISOString()
       });
     }
@@ -69,7 +69,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
   const handleStyleUpdate = useCallback((newStyles: StyleData) => {
     if (onUpdate) {
       onUpdate(instance.id, {
-        style_overrides: newStyles,
+        config_value: newStyles,
         updated_at: new Date().toISOString()
       });
     }
@@ -79,7 +79,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
   const handleLayoutUpdate = useCallback((newLayout: LayoutData) => {
     if (onUpdate) {
       onUpdate(instance.id, {
-        layout_data: newLayout,
+        layout_config: newLayout,
         updated_at: new Date().toISOString()
       });
     }
@@ -90,8 +90,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
     const baseStyle: React.CSSProperties = {};
     
     // 应用布局数据
-    if (instance.layout_data) {
-      const layout = instance.layout_data;
+    if (instance.layout_config) {
+      const layout = instance.layout_config;
       if (layout.width) baseStyle.width = layout.width;
       if (layout.height) baseStyle.height = layout.height;
       if (layout.margin) baseStyle.margin = layout.margin;
@@ -104,8 +104,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
     }
     
     // 应用样式覆盖
-    if (instance.style_overrides) {
-      Object.assign(baseStyle, instance.style_overrides);
+    if (instance.config_value) {
+      Object.assign(baseStyle, instance.config_value);
     }
     
     // 编辑模式样式
@@ -117,11 +117,11 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
     }
     
     return baseStyle;
-  }, [instance.layout_data, instance.style_overrides, isEditMode, isSelected]);
+  }, [instance.layout_config, instance.config_value, isEditMode, isSelected]);
 
   // 渲染具体组件
   const renderComponent = useCallback(() => {
-    const props = instance.props_data || {};
+    const props = instance.config_data || {};
     
     switch (instance.component_type) {
       case ComponentType.BUTTON:
@@ -678,8 +678,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
               <label>组件名称</label>
               <input 
                 type="text" 
-                value={instance.component_name}
-                onChange={(e) => onUpdate?.(instance.id, { component_name: e.target.value })}
+                value={instance.config_name}
+                onChange={(e) => onUpdate?.(instance.id, { config_name: e.target.value })}
               />
             </div>
             <div className="config-field">
@@ -698,7 +698,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
           <div className="config-section">
             <h5>属性配置</h5>
             <textarea
-              value={JSON.stringify(instance.props_data, null, 2)}
+              value={JSON.stringify(instance.config_data, null, 2)}
               onChange={(e) => {
                 try {
                   const newProps = JSON.parse(e.target.value);
@@ -715,7 +715,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
           <div className="config-section">
             <h5>样式配置</h5>
             <textarea
-              value={JSON.stringify(instance.style_overrides, null, 2)}
+              value={JSON.stringify(instance.config_value, null, 2)}
               onChange={(e) => {
                 try {
                   const newStyles = JSON.parse(e.target.value);
@@ -732,7 +732,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
           <div className="config-section">
             <h5>布局配置</h5>
             <textarea
-              value={JSON.stringify(instance.layout_data, null, 2)}
+              value={JSON.stringify(instance.layout_config, null, 2)}
               onChange={(e) => {
                 try {
                   const newLayout = JSON.parse(e.target.value);
@@ -772,7 +772,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
       {isEditMode && isSelected && (
         <div className="component-toolbar">
           <span className="component-label">
-            {instance.component_name || instance.component_type}
+            {instance.config_name || instance.component_type}
           </span>
           <div className="toolbar-actions">
             <button onClick={handleEdit} title="配置">

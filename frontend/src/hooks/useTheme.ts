@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ThemeService, type ThemeConfiguration } from '../services/themeService';
-import type { ThemeConfig } from '../types/database';
+import type { UIConfig } from '../types/database';
 import { PageStyleService, type PageStyleConfiguration } from '../services/pageStyleService';
 import { ComponentStyleService, type ComponentStyleConfiguration } from '../services/componentStyleService';
 import { ThemeStorageUtils, ThemeAnimationUtils } from '../utils/themeUtils';
@@ -17,7 +17,7 @@ interface ThemeState {
   currentTheme: ThemeConfiguration | null;
   isLoading: boolean;
   error: string | null;
-  availableThemes: ThemeConfig[];
+  availableThemes: UIConfig[];
 }
 
 /**
@@ -197,8 +197,7 @@ export function useComponentStyles(componentName: string, variant?: string) {
       setError(null);
       
       const styles = await ComponentStyleService.getInstance().getComponentStyles(
-        componentName,
-        variant || ''
+        componentName
       );
       
       // 如果有多个样式，选择第一个激活的

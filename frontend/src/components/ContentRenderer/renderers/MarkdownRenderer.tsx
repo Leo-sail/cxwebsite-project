@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import type { PageContent, ContentData } from '../../../types/content';
+import type { PageContent } from '../../../types/content';
 
 interface MarkdownRendererProps {
   /** 内容数据 */
@@ -26,12 +26,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   onUpdate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState('');
+  const [editValue, setEditValue] = useState((content.config_value as any)?.value || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 获取Markdown内容
-  const markdownContent = (content.content_data as any)?.value as string || '';
+  const markdownContent = (content.config_value as any)?.value as string || '';
 
   // 初始化编辑值
   useEffect(() => {
@@ -82,10 +82,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     try {
       const updatedContent: PageContent = {
         ...content,
-        content_data: {
-          ...(content.content_data as any),
+        config_value: {
+          ...(content.config_value as any),
           value: editValue
-        } as ContentData,
+        },
         updated_at: new Date().toISOString()
       };
 
@@ -117,7 +117,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
   // 应用样式
   const applyStyles = useCallback(() => {
-    const styleData = content.style_data;
+    const styleData = content.config_data;
     if (!styleData) return {};
 
     return {
@@ -135,7 +135,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       boxShadow: (styleData as any).boxShadow,
       ...(styleData as any).customStyles
     };
-  }, [content.style_data]);
+  }, [content.config_data]);
 
   // 渲染编辑模式
   if (isEditing) {

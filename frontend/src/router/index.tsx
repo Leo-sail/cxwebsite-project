@@ -40,7 +40,7 @@ const AdminArticles = createLazyComponent(() => import('../admin/pages/Articles'
 const AdminMedia = createLazyComponent(() => import('../admin/pages/Media'));
 const AdminContentManagement = createLazyComponent(() => import('../admin/pages/ContentManagement'));
 const AdminLogin = createLazyComponent(() => import('../admin/pages/Login'), { preload: true });
-const DatabaseManager = createLazyComponent(() => import('../components/DatabaseManager'));
+// const DatabaseManager = createLazyComponent(() => import('../components/DatabaseManager')); // Removed - component deleted
 // const DynamicContentDemo = createLazyComponent(() => import('../pages/DynamicContentDemo'));
 
 const PermissionConfig = createLazyComponent(() => import('../pages/admin/PermissionConfig'));
@@ -289,16 +289,16 @@ export const router = createBrowserRouter([
           </SuperAdminRoute>
         )
       },
-      {
-        path: 'database-manager',
-        element: (
-          <SuperAdminRoute>
-            <Suspense fallback={<LoadingSpinner />}>
-              <DatabaseManager />
-            </Suspense>
-          </SuperAdminRoute>
-        )
-      },
+      // {
+      //   path: 'database-manager',
+      //   element: (
+      //     <SuperAdminRoute>
+      //       <Suspense fallback={<LoadingSpinner />}>
+      //         <DatabaseManager />
+      //       </Suspense>
+      //     </SuperAdminRoute>
+      //   )
+      // }, // Removed - DatabaseManager component deleted
       // {
       //   path: 'dynamic-content-demo',
       //   element: (

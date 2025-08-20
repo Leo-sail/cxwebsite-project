@@ -52,9 +52,9 @@ export type {
   AdminUser,
   AdminUserInsert,
   AdminUserUpdate,
-  ThemeConfig as DatabaseThemeConfig,
-  ThemeConfigInsert,
-  ThemeConfigUpdate
+  UIConfig as DatabaseThemeConfig,
+  UIConfigInsert as ThemeConfigInsert,
+  UIConfigUpdate as ThemeConfigUpdate
 } from './database';
 
 // 导入数据库类型用于类型别名

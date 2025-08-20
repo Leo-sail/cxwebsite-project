@@ -52,7 +52,7 @@ const removeToast = (id: string) => {
  * Toast hook
  */
 export const useToast = () => {
-  const [toastList, setToastList] = useState<ToastState[]>(toasts);
+  const [toastList] = useState<ToastState[]>(toasts); // Removed unused setToastList
   
   const subscribe = useCallback((listener: (toasts: ToastState[]) => void) => {
     toastListeners.push(listener);

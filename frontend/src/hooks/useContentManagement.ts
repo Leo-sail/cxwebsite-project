@@ -8,7 +8,7 @@ type Article = Database['public']['Tables']['articles']['Row'];
 type ArticleInsert = Database['public']['Tables']['articles']['Insert'];
 type ArticleUpdate = Database['public']['Tables']['articles']['Update'];
 
-type UIConfig = Database['public']['Tables']['ui_configs']['Row'];
+// type UIConfig = Database['public']['Tables']['ui_configs']['Row']; // Removed unused type
 type UIConfigInsert = Database['public']['Tables']['ui_configs']['Insert'];
 type UIConfigUpdate = Database['public']['Tables']['ui_configs']['Update'];
 

@@ -3,7 +3,7 @@
  * 提供组件级别的样式管理功能，基于ui_configs表实现
  */
 import { supabase } from '../lib/supabase';
-import type { UiConfig, UiConfigInsert, UiConfigUpdate } from '../types/database';
+import type { UIConfig, UIConfigInsert, UIConfigUpdate } from '../types/database';
 
 /**
  * 组件样式配置接口
@@ -144,7 +144,7 @@ export class ComponentStyleDAO {
   static async findComponentStyles(
     componentName?: string,
     variantName?: string
-  ): Promise<UiConfig[]> {
+  ): Promise<UIConfig[]> {
     try {
       let query = supabase
         .from('ui_configs')
@@ -176,7 +176,7 @@ export class ComponentStyleDAO {
   /**
    * 根据ID获取组件样式
    */
-  static async findComponentStyleById(id: string): Promise<UiConfig | null> {
+  static async findComponentStyleById(id: string): Promise<UIConfig | null> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -199,7 +199,7 @@ export class ComponentStyleDAO {
   /**
    * 创建组件样式
    */
-  static async createComponentStyle(componentStyle: UiConfigInsert): Promise<string> {
+  static async createComponentStyle(componentStyle: UIConfigInsert): Promise<string> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -221,7 +221,7 @@ export class ComponentStyleDAO {
   /**
    * 更新组件样式
    */
-  static async updateComponentStyle(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
+  static async updateComponentStyle(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -287,7 +287,7 @@ export class ComponentStyleDAO {
   /**
    * 切换组件样式激活状态
    */
-  static async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UiConfig> {
+  static async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UIConfig> {
     try {
       const { data, error } = await supabase
         .from('ui_configs')
@@ -481,7 +481,7 @@ export class ComponentStyleService {
   /**
    * 创建组件样式
    */
-  async createComponentStyle(componentStyle: UiConfigInsert): Promise<string> {
+  async createComponentStyle(componentStyle: UIConfigInsert): Promise<string> {
     try {
       const styleId = await ComponentStyleDAO.createComponentStyle(componentStyle);
       this.clearCache();
@@ -495,7 +495,7 @@ export class ComponentStyleService {
   /**
    * 更新组件样式
    */
-  async updateComponentStyle(id: string, updates: UiConfigUpdate): Promise<UiConfig> {
+  async updateComponentStyle(id: string, updates: UIConfigUpdate): Promise<UIConfig> {
     try {
       const updatedStyle = await ComponentStyleDAO.updateComponentStyle(id, updates);
       this.clearCache();
@@ -549,7 +549,7 @@ export class ComponentStyleService {
   /**
    * 切换组件样式激活状态
    */
-  async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UiConfig> {
+  async toggleComponentStyleActive(id: string, isActive: boolean): Promise<UIConfig> {
     try {
       const updatedStyle = await ComponentStyleDAO.toggleComponentStyleActive(id, isActive);
       this.clearCache();
@@ -635,29 +635,12 @@ export class ComponentStyleService {
     this.cache.clear();
   }
 
-  /**
-   * 清除特定组件缓存
-   */
-  private clearComponentCache(componentName: string): void {
-    const keysToDelete: string[] = [];
-    
-    // 找到所有相关的缓存键
-    for (const [key] of this.cache['cache']) {
-      if (key.includes(componentName)) {
-        keysToDelete.push(key);
-      }
-    }
-    
-    // 删除相关缓存
-    keysToDelete.forEach(key => {
-      this.cache.clear(key);
-    });
-  }
+
 
   /**
    * 合并组件样式
    */
-  private mergeComponentStyles(componentStyles: UiConfig[]): ComponentStyleConfiguration {
+  private mergeComponentStyles(componentStyles: UIConfig[]): ComponentStyleConfiguration {
     const mergedStyles: ComponentStyleConfiguration = {};
     
     componentStyles.forEach(style => {
@@ -671,10 +654,12 @@ export class ComponentStyleService {
       // 合并伪类样式
       ['hover', 'active', 'focus', 'disabled', 'loading'].forEach(state => {
         if (styleData[state]) {
-          mergedStyles[state as keyof ComponentStyleConfiguration] = {
-            ...mergedStyles[state as keyof ComponentStyleConfiguration],
+          const stateKey = state as keyof ComponentStyleConfiguration;
+          const existingState = mergedStyles[stateKey] || {};
+          mergedStyles[stateKey] = {
+            ...existingState,
             ...styleData[state]
-          };
+          } as any;
         }
       });
       
@@ -685,10 +670,11 @@ export class ComponentStyleService {
       
       // 合并响应式样式
       if (styleData.responsive) {
+        const responsiveData = styleData.responsive as any;
         mergedStyles.responsive = {
-          mobile: { ...mergedStyles.responsive?.mobile, ...styleData.responsive.mobile },
-          tablet: { ...mergedStyles.responsive?.tablet, ...styleData.responsive.tablet },
-          desktop: { ...mergedStyles.responsive?.desktop, ...styleData.responsive.desktop }
+          mobile: { ...mergedStyles.responsive?.mobile, ...(responsiveData.mobile || {}) },
+          tablet: { ...mergedStyles.responsive?.tablet, ...(responsiveData.tablet || {}) },
+          desktop: { ...mergedStyles.responsive?.desktop, ...(responsiveData.desktop || {}) }
         };
       }
     });

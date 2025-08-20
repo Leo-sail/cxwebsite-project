@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
-import { Badge } from '../../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { Badge } from '../../components/ui/Badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Label } from '../../components/ui/label';
 import { toast } from '../../hooks/use-toast';
 import { componentTextApi } from '../../services/api';
 import type { ComponentText, ComponentTextFormData } from '../../types/api';
-import { Pencil, Plus, Trash2, Search, Filter } from 'lucide-react';
+import { Pencil, Plus, Trash2, Search } from 'lucide-react';
 
 /**
  * 信息管理页面组件
@@ -247,7 +246,7 @@ const ContentManagement: React.FC = () => {
           <Card key={area}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Badge variant="outline">{area}</Badge>
+                <Badge variant="secondary">{area}</Badge>
                 <span className="text-sm text-gray-500">({texts.length} 项)</span>
               </CardTitle>
             </CardHeader>
@@ -260,7 +259,7 @@ const ContentManagement: React.FC = () => {
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="secondary">{item.key}</Badge>
                           {item.area && (
-                            <Badge variant="outline">{item.area}</Badge>
+                            <Badge variant="secondary">{item.area}</Badge>
                           )}
                         </div>
                         <div className="text-sm text-gray-900 mb-2">

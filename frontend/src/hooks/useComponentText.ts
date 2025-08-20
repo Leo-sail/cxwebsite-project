@@ -4,7 +4,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { componentTextApi } from '../services/api';
-import type { ComponentText, ComponentTextFormData } from '../types';
+import type { ComponentTextFormData } from '../types'; // Removed unused ComponentText
 
 /**
  * 获取所有组件文字内容

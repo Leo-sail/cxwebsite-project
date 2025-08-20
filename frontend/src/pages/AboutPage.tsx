@@ -120,9 +120,9 @@ const AboutPage: React.FC = () => {
   const submitButtonText = useText('submit_button_text', 'contact');
   const mapDescription = useText('map_description', 'contact');
   const mapLoadingText = useText('map_loading_text', 'contact');
-  const mapAddressText = useText('map_address_text', 'contact');
-  const mapBusinessHours = useText('map_business_hours', 'contact');
-  const mapPhoneText = useText('map_phone_text', 'contact');
+  // const mapAddressText = useText('map_address_text', 'contact'); // Removed unused variable
+  // const mapBusinessHours = useText('map_business_hours', 'contact'); // Removed unused variable
+  // const mapPhoneText = useText('map_phone_text', 'contact'); // Removed unused variable
   const mapDetailAddressLabel = useText('map_detail_address_label', 'contact');
   const mapDetailAddressText = useText('map_detail_address_text', 'contact');
   const mapBusinessHoursLabel = useText('map_business_hours_label', 'contact');

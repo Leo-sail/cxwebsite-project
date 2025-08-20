@@ -52,7 +52,7 @@ const ContactPage: React.FC = () => {
 
   // 页面标题和描述
   const pageTitle = useText('contact_page_title', 'contact');
-  const pageSubtitle = useText('contact_page_subtitle', 'contact');
+  // const pageSubtitle = useText('contact_page_subtitle', 'contact'); // Removed unused variable
   const pageDescription = useText('contact_page_description', 'contact');
 
   // 联系信息

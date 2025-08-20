@@ -185,7 +185,6 @@ function AdvancedThemeProviderInner({
 
     try {
       const styles = await componentStyleService.getComponentStyles(
-        'default',
         componentName
       );
       

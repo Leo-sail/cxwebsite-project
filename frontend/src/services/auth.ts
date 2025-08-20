@@ -4,7 +4,7 @@
 import { supabase } from './supabase';
 import type { Session } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs'; // Removed unused import
 
 /**
  * 管理员用户类型

@@ -21,9 +21,9 @@ export type PageContent = UIConfig;
 export type PageContentInsert = UIConfigInsert;
 export type PageContentUpdate = UIConfigUpdate;
 
-export type ComponentInstance = PageConfig;
-export type ComponentInstanceInsert = PageConfigInsert;
-export type ComponentInstanceUpdate = PageConfigUpdate;
+export type ComponentInstance = UIConfig;
+export type ComponentInstanceInsert = UIConfigInsert;
+export type ComponentInstanceUpdate = UIConfigUpdate;
 
 // 内容类型
 export const ContentType = {

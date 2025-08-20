@@ -16,11 +16,7 @@ import type {
   ArticleFormData,
   ComponentTextFormData
 } from '../types';
-import type {
-  ComponentTextStorage,
-  ComponentTextStorageInsert,
-  ComponentTextStorageUpdate
-} from '../types/database';
+// Removed unused imports
 import type { Json, UIConfig, UIConfigInsert, UIConfigUpdate } from '../types/database';
 
 
